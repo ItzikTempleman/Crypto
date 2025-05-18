@@ -21,17 +21,20 @@
     function displayList(cryptoList) {
         const listContainer = document.getElementById(`crypto-list-container`);
         cryptoList.forEach(listItem => {
-            const switchIcon = document.createElement(`input`);
-            switchIcon.type = `checkbox`;
-            switchIcon.className = `switch-checkbox`;
-            const slider = document.createElement(`span`);
-            slider.className = `switch-slider`;
+            const toggle = document.createElement(`label`);
+            toggle.className = `toggle`;
+            const myToggle = document.createElement(`input`);
+            myToggle.className = `toggleInput`;
+            myToggle.type = `checkBox`;
+            const toggleDiv = document.createElement(`div`);
+            toggleDiv.className = `toggleFill`;
+            toggle.appendChild(myToggle);
+            toggle.appendChild(toggleDiv);
             const cardItem = document.createElement(`div`);
             const symbol = document.createElement(`p`);
             const name = document.createElement(`p`);
             const icon = document.createElement(`img`);
-            cardItem.appendChild(switchIcon);
-            cardItem.appendChild(slider);
+            cardItem.appendChild(toggle);
             cardItem.className = `crypto-card-item-div`;
             symbol.className = `card-crypto-symbol`;
             name.className = `card-crypto-name`;
