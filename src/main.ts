@@ -1,22 +1,10 @@
 (
     () => {
         window.addEventListener(`load`, async () => {
-                const proxy = "https://cors-anywhere.herokuapp.com/"
-                const baseUrl = `https://api.coingecko.com/api/v3/coins/`
-                const cryptoListUrl = `${proxy}${baseUrl}list`
 
                 try {
-                    const cryptoList = await getCryptoCurrencyList(cryptoListUrl)
-                    if (!Array.isArray(cryptoList)) {
-                        new Error("❌ Must be an array")
-                    }
-                    const limitedList = cryptoList.slice(0, 10)
-                    for (let i = 0; i < 10; i++) {
-                        let cryptoIdName = limitedList[i].id
-                        const cryptoData = await getCryptoCurrency(`${proxy}${baseUrl}`, cryptoIdName)
-                        displayCurrencies(cryptoData, limitedList[i])
-                        await setDelay(1500)
-                    }
+                    const cryptoList = await getCryptoCurrencyList()
+                    displayList(cryptoList)
 
                 } catch (err) {
                     console.log(err.message)
@@ -24,28 +12,69 @@
             }
         )
 
-        async function getCryptoCurrencyList(cryptoListUrl) {
-            const response = await fetch(cryptoListUrl)
-            return response.json()
-        }
+        async function getCryptoCurrencyList() {
+            const baseUrl = `https://api.coingecko.com/api/v3/coins/`
+            let cryptoExtListUsd = `markets?vs_currency=usd`
 
-        async function getCryptoCurrency(baseUrl, cryptoIdName) {
-            let cryptoListResponse = `${baseUrl}${cryptoIdName}`
-            const response = await fetch(cryptoListResponse)
+            let url = `${baseUrl}${cryptoExtListUsd}`
+            const response = await fetch(url)
             if (!response.ok) {
-                throw new Error(`❌ ${await response.text()}`)
+                throw new Error(`❌ Failed to fetch data`)
             }
-            const data = await response.json()
-            console.log(data)
-            return data
+            return await response.json()
+
         }
 
-        async function setDelay(time) {
-            return new Promise(resolve => setTimeout(resolve, time)
+
+        function displayList(cryptoList) {
+            const listContainer = document.getElementById(`crypto-list-container`)
+
+            cryptoList.forEach(listItem => {
+
+                    const switchIcon = document.createElement(`input`)
+                    switchIcon.type = `checkbox`
+                    switchIcon.className = `switch-checkbox`
+                    const slider = document.createElement(`span`)
+                    slider.className = `switch-slider`
+
+                    const cardItem = document.createElement(`div`)
+                    const symbol = document.createElement(`p`)
+                    const name = document.createElement(`p`)
+                    const icon = document.createElement(`img`)
+                    cardItem.appendChild(switchIcon)
+                    cardItem.appendChild(slider)
+
+                    cardItem.className = `crypto-card-item-div`
+                    symbol.className = `card-crypto-symbol`
+                    name.className = `card-crypto-name`
+                    icon.className = `card-crypto-icon`
+
+                    symbol.innerHTML = `${listItem.symbol.toUpperCase()}`
+                    name.innerHTML = `${listItem.name}`
+                    icon.src = `${listItem.image}`
+
+
+                    cardItem.appendChild(icon)
+                    cardItem.appendChild(symbol)
+                    cardItem.appendChild(name)
+
+
+                    const btn = document.createElement(`button`)
+                    btn.className = `showMoreInfoBtn`
+                    btn.textContent = `Show more info`
+                    btn.addEventListener(`click`, async () => {
+                            showMoreInfo(listItem)
+                        }
+                    )
+                    cardItem.appendChild(btn)
+
+
+                    listContainer.appendChild(cardItem)
+                }
             )
         }
 
-        function displayCurrencies(cryptoData, basicInfo) {
+        function showMoreInfo(listItem) {
 
         }
     }
