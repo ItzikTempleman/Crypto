@@ -1,7 +1,13 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "removeComments": true,
-    "outDir": "build"
-  }
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "outDir": "build",
+    "rootDir": "src",
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"]
 }

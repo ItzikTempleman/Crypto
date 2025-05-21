@@ -162,6 +162,7 @@ main {
     transition: background 0.2s;
 }
 
+
 .toggleFill::after {
     content: "";
     position:absolute;
@@ -201,4 +202,12 @@ transform:translateX(20px);
     background-color: indianred;
     border-radius: 8px;
     padding: 10px 0 10px 0;
+}
+.showMoreInfoBtn::after{
+
+}
+
+.chart {
+    width: 100%;
+    height: 500px;
 }

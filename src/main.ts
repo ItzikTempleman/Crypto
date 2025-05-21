@@ -2,12 +2,20 @@
     () => {
         window.addEventListener(`load`, async () => {
 
+                const chartPage = document.getElementById(`chart-page`);
+                if (chartPage) {
+                    loadChart()
+                }
+
+
                 try {
                     const cryptoList = await getCryptoCurrencyList()
                     displayList(cryptoList)
 
                 } catch (err) {
-                    console.log(err.message)
+                    if (err instanceof Error) {
+                        console.log(err.message)
+                    }
                 }
             }
         )
@@ -25,10 +33,10 @@
         }
 
 
-        function displayList(cryptoList) {
+        function displayList(cryptoList:any ) {
             const listContainer = document.getElementById(`crypto-list-container`)
 
-            cryptoList.forEach(listItem => {
+            cryptoList.forEach((listItem: { symbol: string; name: any; image: any; }) => {
                     const toggle = document.createElement(`label`)
                     toggle.className = `toggle`
                     const myToggle = document.createElement(`input`)
@@ -63,25 +71,65 @@
                     cardItem.appendChild(name)
 
 
-                    const btn = document.createElement(`button`)
-                    btn.className = `showMoreInfoBtn`
-                    btn.textContent = `Show more info`
-                    btn.addEventListener(`click`, async () => {
-                            showMoreInfo(listItem)
+                    const showMoreBtn = document.createElement(`button`)
+                    showMoreBtn.className = `showMoreInfoBtn`
+                    showMoreBtn.textContent = `Show more info`
+                    showMoreBtn.addEventListener(`click`, async () => {
+                            showMoreInfo()
                         }
                     )
-                    cardItem.appendChild(btn)
+                    cardItem.appendChild(showMoreBtn)
 
-
+                if (listContainer)
                     listContainer.appendChild(cardItem)
                 }
             )
         }
 
-        function showMoreInfo(listItem) {
+        function showMoreInfo() {
+
+        }
+
+        function loadChart(): void {
+            console.log("in the live view screen")
 
         }
     }
 )()
+// const chart = createChart(document.getElementById('chart') as HTMLElement, {
+//     width: 800,
+//     height: 500,
+//     layout: {
+//         background: { color: '#000000' },
+//         textColor: 'white',
+//     },
+//     grid: {
+//         vertLines: { color: '#444' },
+//         horzLines: { color: '#444' },
+//     },
+// })
+//
+// // @ts-ignore
+// const series = chart.addCandlestickSeries()
+//
+// fetch('https://min-api.cryptocompare.com/data/pricemulti?tsyms=usd&fsyms=btc,eth,doge')
+//     .then(res => res.json())
+//     .then(data => {
+//         const candles = data.map((candle: any) => ({
+//             time: candle[0] / 1000,
+//             open: parseFloat(candle[1]),
+//             high: parseFloat(candle[2]),
+//             low: parseFloat(candle[3]),
+//             close: parseFloat(candle[4])
+//         }));
+//         series.setData(candles)
+//     })
+//     .catch(err => console.error('❌ Failed to load chart data:', err))
+
+
+
+
+
+
 
 
