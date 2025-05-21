@@ -1,24 +1,41 @@
-(
-    () => {
-        window.addEventListener(`load`, async () => {
+enum PageId {
+    HOME = "home-body-container",
+    LIVE = "chart-page",
+    ABOUT = "about-page"
+}
 
-                const chartPage = document.getElementById(`chart-page`);
-                if (chartPage) {
-                    loadChart()
-                }
+function getPage(): PageId | null {
+    if (document.getElementById(PageId.HOME)) return PageId.HOME
+    if (document.getElementById(PageId.LIVE)) return PageId.LIVE
+    if (document.getElementById(PageId.ABOUT)) return PageId.ABOUT
+    return null;
+}
 
-
-                try {
-                    const cryptoList = await getCryptoCurrencyList()
-                    displayList(cryptoList)
-
-                } catch (err) {
-                    if (err instanceof Error) {
-                        console.log(err.message)
+(() => {
+        window.addEventListener("load", async () => {
+            switch (getPage()) {
+                case PageId.HOME:
+                    try {
+                        const cryptoList = await getCryptoCurrencyList()
+                        displayList(cryptoList)
+                    } catch (err) {
+                        if (err instanceof Error) {
+                            console.log(err.message)
+                        }
                     }
-                }
+                    break
+
+                case PageId.LIVE:
+                    const chartContainer = document.getElementById("chart")
+                    if (chartContainer) {
+                        loadChart(chartContainer)
+                    }
+                    break
+
+                case PageId.ABOUT:
+                    break
             }
-        )
+        })
 
         async function getCryptoCurrencyList() {
             const baseUrl = `https://api.coingecko.com/api/v3/coins/`
@@ -33,7 +50,7 @@
         }
 
 
-        function displayList(cryptoList:any ) {
+        function displayList(cryptoList: any) {
             const listContainer = document.getElementById(`crypto-list-container`)
 
             cryptoList.forEach((listItem: { symbol: string; name: any; image: any; }) => {
@@ -80,8 +97,8 @@
                     )
                     cardItem.appendChild(showMoreBtn)
 
-                if (listContainer)
-                    listContainer.appendChild(cardItem)
+                    if (listContainer)
+                        listContainer.appendChild(cardItem)
                 }
             )
         }
@@ -90,41 +107,12 @@
 
         }
 
-        function loadChart(): void {
+        function loadChart(chartPage: HTMLElement): void {
             console.log("in the live view screen")
-
+            chartPage.style.backgroundColor = `red`
         }
     }
 )()
-// const chart = createChart(document.getElementById('chart') as HTMLElement, {
-//     width: 800,
-//     height: 500,
-//     layout: {
-//         background: { color: '#000000' },
-//         textColor: 'white',
-//     },
-//     grid: {
-//         vertLines: { color: '#444' },
-//         horzLines: { color: '#444' },
-//     },
-// })
-//
-// // @ts-ignore
-// const series = chart.addCandlestickSeries()
-//
-// fetch('https://min-api.cryptocompare.com/data/pricemulti?tsyms=usd&fsyms=btc,eth,doge')
-//     .then(res => res.json())
-//     .then(data => {
-//         const candles = data.map((candle: any) => ({
-//             time: candle[0] / 1000,
-//             open: parseFloat(candle[1]),
-//             high: parseFloat(candle[2]),
-//             low: parseFloat(candle[3]),
-//             close: parseFloat(candle[4])
-//         }));
-//         series.setData(candles)
-//     })
-//     .catch(err => console.error('❌ Failed to load chart data:', err))
 
 
 
