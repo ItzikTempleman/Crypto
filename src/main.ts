@@ -67,10 +67,8 @@ function getPage() {
                 attachFlipLogic(
                     frontDiv,
                     backContent,
-                    backDiv,
                     cardContainer,
                     cryptoListItem,
-                    coinsList,
                     baseUrl
                 )
 
@@ -94,7 +92,7 @@ function getPage() {
 
             toggleLabel.className = `toggle`
             toggleInput.className = `toggleInput`
-            toggleInput.type = `checkBox`
+            toggleInput.type = `checkbox`
             toggleFill.className = `toggleFill`
             icon.className = `card-crypto-icon`
             symbol.className = `card-crypto-symbol`
@@ -114,7 +112,7 @@ function getPage() {
                         if (coinsList.length < 5) {
                             coinsList.push(symbolStr)
                             localStorage.setItem(`coins`, JSON.stringify(coinsList))
-                        } else toggleInput.checked = false
+                        }
                     }
                 }
             })
@@ -132,10 +130,10 @@ function getPage() {
         function attachFlipLogic(
             frontDiv: HTMLElement,
             backContent: HTMLElement,
-            backDiv: HTMLDivElement,
+
             cardItem: HTMLElement,
             listItem: any,
-            coinsList: any,
+
             baseUrl: string
         ) {
             const showMoreBtn = frontDiv.querySelector(`.showMoreInfoBtn`)

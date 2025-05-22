@@ -182,12 +182,6 @@ main {
     transform: rotateY(180deg);
 }
 
-.frontDiv,
-.backDiv {
-    z-index: 1;
-}
-
-
 
 
 .card-crypto-symbol {
@@ -218,6 +212,8 @@ main {
     border-radius: 150px;
     background: white;
     transition: background 0.2s;
+    cursor: pointer;
+    z-index: 5;
 }
 
 .toggleFill::after {
@@ -233,7 +229,7 @@ main {
     transition: transform 0.2s;
 }
 
-.toggleInput:checked ~ .toggleFill {
+.toggleInput:checked ~ .toggleFill{
     background: #c38bfb;
 }
 
@@ -256,13 +252,21 @@ main {
     display: flex;
     flex-direction: column;
     height: 100%;
+    align-content: center;
+    align-items: center;
+
+
+}
+.backContentDiv p{
+    color: black;
+    font-size: 18px;
 }
 
 .showLessInfoBtn {
     border: none;
     color: white;
     font-size: 14px;
-    background-color: #32d6fb;
+    background-color: #ffb700;
     border-radius: 8px;
     padding: 10px 0;
     margin-top: auto;

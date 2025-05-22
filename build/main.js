@@ -62,7 +62,7 @@ function getPage() {
             backContent.className = `backContentDiv`;
             buildFrontContent(frontDiv, cryptoListItem, coinsList);
             backDiv.appendChild(backContent);
-            attachFlipLogic(frontDiv, backContent, backDiv, cardContainer, cryptoListItem, coinsList, baseUrl);
+            attachFlipLogic(frontDiv, backContent, cardContainer, cryptoListItem, baseUrl);
             frontContentDiv.appendChild(frontDiv);
             frontContentDiv.appendChild(backDiv);
             cardContainer.appendChild(frontContentDiv);
@@ -80,7 +80,7 @@ function getPage() {
         const showMoreBtn = document.createElement(`button`);
         toggleLabel.className = `toggle`;
         toggleInput.className = `toggleInput`;
-        toggleInput.type = `checkBox`;
+        toggleInput.type = `checkbox`;
         toggleFill.className = `toggleFill`;
         icon.className = `card-crypto-icon`;
         symbol.className = `card-crypto-symbol`;
@@ -98,8 +98,6 @@ function getPage() {
                         coinsList.push(symbolStr);
                         localStorage.setItem(`coins`, JSON.stringify(coinsList));
                     }
-                    else
-                        toggleInput.checked = false;
                 }
             }
         });
@@ -111,7 +109,7 @@ function getPage() {
         front.appendChild(name);
         front.appendChild(showMoreBtn);
     }
-    function attachFlipLogic(frontDiv, backContent, backDiv, cardItem, listItem, coinsList, baseUrl) {
+    function attachFlipLogic(frontDiv, backContent, cardItem, listItem, baseUrl) {
         const showMoreBtn = frontDiv.querySelector(`.showMoreInfoBtn`);
         if (!showMoreBtn)
             return;
