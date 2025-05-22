@@ -17,12 +17,11 @@ function getPage() {
     window.addEventListener(`load`, async () => {
         const baseUrl = `https://api.coingecko.com/api/v3/coins/`;
         const cryptoExtListUsd = `markets?vs_currency=usd`;
-        let coinsList = getSavedCurrencies();
         switch (getPage()) {
             case PageId.HOME:
                 try {
                     const cryptoList = await getCryptoCurrency(`${baseUrl}${cryptoExtListUsd}`);
-                    displayList(cryptoList, coinsList, baseUrl);
+                    displayList(cryptoList, baseUrl);
                 }
                 catch (err) {
                     if (err instanceof Error) {
@@ -47,7 +46,7 @@ function getPage() {
         }
         return await response.json();
     }
-    function displayList(cryptoList, coinsList, baseUrl) {
+    function displayList(cryptoList, baseUrl) {
         let cryptoListContainerDiv = document.getElementById(`crypto-list-container`);
         cryptoList.forEach((cryptoListItem) => {
             const cardContainer = document.createElement(`div`);
@@ -60,7 +59,7 @@ function getPage() {
             frontDiv.className = `frontDiv`;
             backDiv.className = `backDiv`;
             backContent.className = `backContentDiv`;
-            buildFrontContent(frontDiv, cryptoListItem, coinsList);
+            buildFrontContent(frontDiv, cryptoListItem);
             backDiv.appendChild(backContent);
             attachFlipLogic(frontDiv, backContent, cardContainer, cryptoListItem, baseUrl);
             frontContentDiv.appendChild(frontDiv);
@@ -70,7 +69,7 @@ function getPage() {
                 cryptoListContainerDiv.appendChild(cardContainer);
         });
     }
-    function buildFrontContent(front, cryptoListItem, coinsList) {
+    function buildFrontContent(front, cryptoListItem) {
         const toggleLabel = document.createElement(`label`);
         const toggleInput = document.createElement(`input`);
         const toggleFill = document.createElement(`div`);
@@ -92,13 +91,22 @@ function getPage() {
         showMoreBtn.textContent = `Show more info`;
         toggleInput.addEventListener(`change`, () => {
             const symbolStr = cryptoListItem.symbol;
+            let updatedCoinsList = getSavedCurrencies();
             if (toggleInput.checked) {
-                if (!coinsList.includes(symbolStr)) {
-                    if (coinsList.length < 5) {
-                        coinsList.push(symbolStr);
-                        localStorage.setItem(`coins`, JSON.stringify(coinsList));
+                if (!updatedCoinsList.includes(symbolStr)) {
+                    if (updatedCoinsList.length < 5) {
+                        updatedCoinsList.push(symbolStr);
+                        localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList));
+                    }
+                    else {
+                        toggleInput.checked = false;
+                        throw new Error(`❌ You can select up to 5 coins only`);
                     }
                 }
+            }
+            else {
+                updatedCoinsList = updatedCoinsList.filter((coin) => coin !== symbolStr);
+                localStorage.setItem('coins', JSON.stringify(updatedCoinsList));
             }
         });
         toggleLabel.appendChild(toggleInput);
