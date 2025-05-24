@@ -1,7 +1,7 @@
 enum PageId {
-    HOME = `home-body-container`,
-    LIVE = `chart-page`,
-    ABOUT = `about-page`
+    HOME = `homeScreenContainer`,
+    LIVE = `chartScreenContainer`,
+    ABOUT = `aboutScreenContainer`
 }
 
 function getPage() {
@@ -26,7 +26,7 @@ function getPage() {
                     }
                     break
                 case PageId.LIVE:
-                    const chartContainer = document.getElementById(`chart`)
+                    const chartContainer = document.getElementById(`chartContainer`)
                     if (chartContainer) {
                         await loadChart(chartContainer)
                     }
@@ -45,104 +45,103 @@ function getPage() {
         }
 
         function displayList(cryptoList: any, baseUrl: string) {
-            let cryptoListContainerDiv: HTMLElement | null = document.getElementById(`crypto-list-container`)
+
             cryptoList.forEach((cryptoListItem: any) => {
-                    const cardContainer = document.createElement(`div`)
-                    const frontContentDiv = document.createElement(`div`)
-                    const frontDiv = document.createElement(`div`)
-                    const backDiv = document.createElement(`div`)
-                    const backContent = document.createElement(`div`)
+                let cryptoListContainerDiv = document.getElementById(`cryptoListContainerDiv`)
+                const cardRoot = document.createElement(`div`)
+                const cardFlipper = document.createElement(`div`)
+                const cardFrontFace = document.createElement(`div`)
+                const cardBackFace = document.createElement(`div`)
+                const backFaceContent = document.createElement(`div`)
 
-                    cardContainer.className = `cardContainer`
-                    frontContentDiv.className = `frontContentDiv`
-                    frontDiv.className = `frontDiv`
-                    backDiv.className = `backDiv`
-                    backContent.className = `backContentDiv`
+                cardRoot.className = `cardRoot`
+                cardFlipper.className = `cardFlipper`
+                cardFrontFace.className = `cardFrontFace`
+                cardBackFace.className = `cardBackFace`
+                backFaceContent.className = `backFaceContent`
+                    cardBackFace.appendChild(backFaceContent)
+                    cardFlipper.appendChild(cardFrontFace)
+                    cardFlipper.appendChild(cardBackFace)
+                    cardRoot.appendChild(cardFlipper)
+                if (cryptoListContainerDiv) cryptoListContainerDiv.appendChild(cardRoot)
 
-
-                    buildFrontContent(frontDiv, cryptoListItem)
-                    backDiv.appendChild(backContent)
-
-                    attachFlipLogic(
-                        frontDiv,
-                        backContent,
-                        cardContainer,
-                        cryptoListItem,
-                        baseUrl
-                    )
-
-                    frontContentDiv.appendChild(frontDiv)
-                    frontContentDiv.appendChild(backDiv)
-                    cardContainer.appendChild(frontContentDiv)
-
-                    if (cryptoListContainerDiv !== null) cryptoListContainerDiv.appendChild(cardContainer)
+                    buildFrontContent(cardFrontFace, cryptoListItem)
+                    attachFlipLogic(cardFrontFace, backFaceContent, cardRoot, cryptoListItem, baseUrl)
                 }
             )
         }
 
-        function buildFrontContent(front: HTMLElement, cryptoListItem: any) {
-            const toggleLabel = document.createElement(`label`)
-            const toggleInput = document.createElement(`input`)
-            const toggleFill = document.createElement(`div`)
-            const icon = document.createElement(`img`)
-            const symbol = document.createElement(`p`)
-            const name = document.createElement(`p`)
+        function buildFrontContent(frontDiv: HTMLElement, cryptoListItem: any) {
             const showMoreBtn = document.createElement(`button`)
+            const cryptoListItemIcon = document.createElement(`img`)
+            const cryptoListItemSymbol = document.createElement(`p`)
+            const cryptoListItemName = document.createElement(`p`)
+
+            const toggleWrapper = document.createElement(`label`)
+            const toggleCheckbox = document.createElement(`input`)
+            const toggleVisualTrack = document.createElement(`div`)
+            toggleWrapper.className = `toggleWrapper`
+            toggleCheckbox.className = `toggleCheckbox`
+            toggleCheckbox.type = `checkbox`
+
+            toggleVisualTrack.className = `toggleVisualTrack`
 
 
-            toggleLabel.className = `toggle`
-            toggleInput.className = `toggleInput`
-            toggleInput.type = `checkbox`
-            toggleFill.className = `toggleFill`
-            icon.className = `card-crypto-icon`
-            symbol.className = `card-crypto-symbol`
-            name.className = `card-crypto-name`
+            toggleCheckbox.checked = getSavedCurrencies().includes(cryptoListItem.symbol)
+
             showMoreBtn.className = `showMoreInfoBtn`
-
-
-            icon.src = cryptoListItem.image
-            symbol.innerHTML = cryptoListItem.symbol.toUpperCase()
-            name.innerHTML = cryptoListItem.name
+            cryptoListItemIcon.src = cryptoListItem.image
+            cryptoListItemSymbol.innerHTML = cryptoListItem.symbol.toUpperCase()
+            cryptoListItemName.innerHTML = cryptoListItem.name
             showMoreBtn.textContent = `Show more info`
 
-            toggleInput.addEventListener(`change`, () => {
-                    const symbolStr = cryptoListItem.symbol
-                    let updatedCoinsList = getSavedCurrencies()
-                    if (toggleInput.checked) {
-                        if (!updatedCoinsList.includes(symbolStr)) {
-                            if (updatedCoinsList.length < 5) {
-                                updatedCoinsList.push(symbolStr)
-                                localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList))
-                            } else {
-                                toggleInput.checked = false
-                                throw new Error(`❌ You can select up to 5 coins only`)
+            toggleCheckbox.addEventListener(`change`, () => {
+                    try {
+                        let updatedCoinsList = getSavedCurrencies()
+                        if (toggleCheckbox.checked) {
+                            if (!updatedCoinsList.includes(cryptoListItem.symbol)) {
+                                if (updatedCoinsList.length < 5) {
+                                    updatedCoinsList.push(cryptoListItem.symbol)
+                                    localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList))
+                                } else {
+                                    toggleCheckbox.checked = false
+                                    throw new Error(`❌ You can select up to 5 coins only`)
+                                }
                             }
+                        } else {
+                            let newCurrencyList = []
+                            for (const item of updatedCoinsList) {
+                                if (item !== cryptoListItem.symbol) {
+                                    newCurrencyList.push(item)
+                                }
+                            }
+                            updatedCoinsList = newCurrencyList
+                            localStorage.setItem('coins', JSON.stringify(updatedCoinsList))
                         }
-                    } else {
-
-                        updatedCoinsList = updatedCoinsList.filter((coin: string) => coin !== symbolStr)
-                        localStorage.setItem('coins', JSON.stringify(updatedCoinsList))
+                    } catch (err) {
+                        if (err instanceof Error) {
+                            alert(err.message)
+                        }
                     }
                 }
             )
-            toggleLabel.appendChild(toggleInput)
-            toggleLabel.appendChild(toggleFill)
-            front.appendChild(toggleLabel)
-            front.appendChild(icon)
-            front.appendChild(symbol)
-            front.appendChild(name)
-            front.appendChild(showMoreBtn)
+            toggleWrapper.appendChild(toggleCheckbox)
+            toggleWrapper.appendChild(toggleVisualTrack)
+            frontDiv.appendChild(toggleWrapper)
+            frontDiv.appendChild(cryptoListItemIcon)
+            frontDiv.appendChild(cryptoListItemSymbol)
+            frontDiv.appendChild(cryptoListItemName)
+            frontDiv.appendChild(showMoreBtn)
         }
 
         function attachFlipLogic(
             frontDiv: HTMLElement,
             backContent: HTMLElement,
             cardItem: HTMLElement,
-            listItem: any,
-            baseUrl: string
+            cryptoItem: any,
+            baseUrl: string,
         ) {
             const showMoreBtn = frontDiv.querySelector(`.showMoreInfoBtn`)
-            if (!showMoreBtn) return
             const showLessInfoBtn = document.createElement(`button`)
             showLessInfoBtn.className = `showLessInfoBtn`
             showLessInfoBtn.textContent = `Show less info`
@@ -150,24 +149,29 @@ function getPage() {
                     cardItem.classList.remove(`flipped`)
                 }
             )
-            showMoreBtn.addEventListener(`click`, async () => {
+            showMoreBtn?.addEventListener(`click`, async () => {
                     if (cardItem.classList.contains(`flipped`)) return
-                    const data = await getCryptoCurrency(`${baseUrl}${listItem.name.toLowerCase()}`)
-                    const prices = data.market_data.current_price
-                    backContent.innerHTML = `
+                    cardItem.classList.add(`flipped`)
+                    cardItem.offsetWidth
+                    try {
+                        const data = await getCryptoCurrency(`${baseUrl}${cryptoItem.name.toLowerCase()}`)
+                        const prices = data.market_data.current_price
+                        backContent.innerHTML = `
             <p>${prices.usd} $</p>
             <p>${prices.eur} €</p>
-            <p>${prices.ils} ₪</p>
-        `
-                    backContent.appendChild(showLessInfoBtn)
-                    cardItem.classList.add(`flipped`)
+            <p>${prices.ils} ₪</p>`
+                        backContent.appendChild(showLessInfoBtn)
+                    } catch (err) {
+                        new Error(`❌ Failed to load coin info: ${err}`)
+                        cardItem.classList.remove(`flipped`)
+                    }
                 }
             )
         }
 
         async function loadChart(chartPage: HTMLElement) {
-            getSavedCurrencies()
-            await getDelayedData()
+            // getSavedCurrencies()
+            // await getDelayedData()
         }
 
         async function getDelayedData() {
