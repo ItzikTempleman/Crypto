@@ -19,23 +19,40 @@
 }
 
 .cryptoListContainerDiv {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    padding: 150px;
-    overflow: visible;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    max-width: calc((200px * 4) + (20px * 3));
+    margin: 0 auto;
+    gap: 20px;
+    padding: 20px 0;
+    box-sizing: border-box;
 }
 
+@media (max-width: 1024px) {
+    .cryptoListContainerDiv {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .cryptoListContainerDiv {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .cryptoListContainerDiv {
+        grid-template-columns: 1fr;
+    }
+}
 
 /*card elements*/
 .cardRoot {
     position: relative;
-    width: 200px;
-    height: 210px;
-    perspective: 1000px;
+    width: 100%;
+    max-width: 200px;
+    height: 250px;
     background-color: transparent;
-    box-sizing: border-box;
 }
 
 .cardFlipper {
@@ -87,31 +104,33 @@
     border: none;
     color: white;
     font-size: 14px;
-    background-color: #9736f6;
+    background-color: #ffb700;
     border-radius: 8px;
     padding: 10px 0;
     margin-top: auto;
     width: 100%;
 }
 
-.backContentDiv {
+.backFaceContent {
     display: flex;
     flex-direction: column;
     height: 100%;
     align-content: center;
     align-items: center;
+    text-align: center;
 }
 
-.backContentDiv p{
+.backFaceContent p{
     color: black;
-    font-size: 18px;
+    font-size: 14px;
+    font-family: Arial;
 }
 
 .showLessInfoBtn {
     border: none;
     color: white;
     font-size: 14px;
-    background-color: #ffb700;
+    background-color: rgba(92, 92, 92, 0.84);
     border-radius: 8px;
     padding: 10px 0;
     margin-top: auto;
@@ -152,14 +171,13 @@
     left: 0;
     height: 20px;
     width: 20px;
-    background: #9736f6;
+    background: #5271aa;
     border-radius: 150px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
     transition: transform 0.2s;
 }
 
 .toggleCheckbox:checked ~ .toggleVisualTrack{
-    background: #c38bfb;
+    background: #96b3e8;
 }
 
 .toggleCheckbox:checked ~ .toggleVisualTrack::after {

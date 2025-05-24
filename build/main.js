@@ -47,7 +47,7 @@ function getPage() {
         return await response.json();
     }
     function displayList(cryptoList, baseUrl) {
-        cryptoList.forEach((cryptoListItem) => {
+        cryptoList.forEach((coin) => {
             let cryptoListContainerDiv = document.getElementById(`cryptoListContainerDiv`);
             const cardRoot = document.createElement(`div`);
             const cardFlipper = document.createElement(`div`);
@@ -65,11 +65,11 @@ function getPage() {
             cardRoot.appendChild(cardFlipper);
             if (cryptoListContainerDiv)
                 cryptoListContainerDiv.appendChild(cardRoot);
-            buildFrontContent(cardFrontFace, cryptoListItem);
-            attachFlipLogic(cardFrontFace, backFaceContent, cardRoot, cryptoListItem, baseUrl);
+            buildFrontContent(cardFrontFace, coin);
+            attachFlipLogic(cardFrontFace, backFaceContent, cardRoot, coin, baseUrl);
         });
     }
-    function buildFrontContent(frontDiv, cryptoListItem) {
+    function buildFrontContent(frontDiv, coin) {
         const showMoreBtn = document.createElement(`button`);
         const cryptoListItemIcon = document.createElement(`img`);
         const cryptoListItemSymbol = document.createElement(`p`);
@@ -81,19 +81,19 @@ function getPage() {
         toggleCheckbox.className = `toggleCheckbox`;
         toggleCheckbox.type = `checkbox`;
         toggleVisualTrack.className = `toggleVisualTrack`;
-        toggleCheckbox.checked = getSavedCurrencies().includes(cryptoListItem.symbol);
+        toggleCheckbox.checked = getSavedCurrencies().includes(coin.symbol);
         showMoreBtn.className = `showMoreInfoBtn`;
-        cryptoListItemIcon.src = cryptoListItem.image;
-        cryptoListItemSymbol.innerHTML = cryptoListItem.symbol.toUpperCase();
-        cryptoListItemName.innerHTML = cryptoListItem.name;
+        cryptoListItemIcon.src = coin.image;
+        cryptoListItemSymbol.innerHTML = coin.symbol.toUpperCase();
+        cryptoListItemName.innerHTML = coin.name;
         showMoreBtn.textContent = `Show more info`;
         toggleCheckbox.addEventListener(`change`, async () => {
             try {
                 if (toggleCheckbox.checked) {
                     let updatedCoinsList = getSavedCurrencies();
-                    if (!updatedCoinsList.includes(cryptoListItem.symbol)) {
+                    if (!updatedCoinsList.includes(coin.symbol)) {
                         if (updatedCoinsList.length < 5) {
-                            updatedCoinsList.push(cryptoListItem.symbol);
+                            updatedCoinsList.push(coin.symbol);
                             localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList));
                         }
                         else {
@@ -107,7 +107,7 @@ function getPage() {
                     let currentCoins = getSavedCurrencies();
                     let newCurrencyList = [];
                     for (const item of currentCoins) {
-                        if (item !== cryptoListItem.symbol) {
+                        if (item !== coin.symbol) {
                             newCurrencyList.push(item);
                         }
                     }
@@ -117,7 +117,7 @@ function getPage() {
             }
             catch (err) {
                 if (err instanceof Error) {
-                    alert(err.message);
+                    console.log(err.message);
                 }
             }
         });
@@ -137,27 +137,36 @@ function getPage() {
         showLessInfoBtn.addEventListener(`click`, () => {
             cardItem.classList.remove(`flipped`);
         });
-        showMoreBtn?.addEventListener(`click`, async () => {
-            if (cardItem.classList.contains(`flipped`))
+        showMoreBtn?.addEventListener("click", async () => {
+            if (cardItem.classList.contains("flipped"))
                 return;
-            cardItem.classList.add(`flipped`);
-            cardItem.offsetWidth;
             try {
                 const data = await getCryptoCurrency(`${baseUrl}${cryptoItem.name.toLowerCase()}`);
                 const prices = data.market_data.current_price;
                 backContent.innerHTML = `
-            <p>${prices.usd} $</p>
-            <p>${prices.eur} €</p>
-            <p>${prices.ils} ₪</p>`;
+<p><strong>Current ${data.name} market value</strong></p>
+            
+            <p>${formatPrices(prices.usd)} $</p>
+            <p>${formatPrices(prices.eur)} €</p>
+            <p>${formatPrices(prices.ils)} ₪</p>
+        `;
                 backContent.appendChild(showLessInfoBtn);
+                requestAnimationFrame(() => {
+                    cardItem.classList.add("flipped");
+                });
             }
             catch (err) {
-                new Error(`❌ Failed to load coin info: ${err}`);
-                cardItem.classList.remove(`flipped`);
+                throw new Error("❌ Failed to load coin info");
             }
         });
     }
     async function displayRemoveCoinsPopUp() {
+    }
+    function formatPrices(price) {
+        return price.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
     }
     async function loadChart(chartPage) {
         // getSavedCurrencies()
