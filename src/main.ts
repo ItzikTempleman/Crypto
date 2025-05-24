@@ -47,23 +47,23 @@ function getPage() {
         function displayList(cryptoList: any, baseUrl: string) {
 
             cryptoList.forEach((cryptoListItem: any) => {
-                let cryptoListContainerDiv = document.getElementById(`cryptoListContainerDiv`)
-                const cardRoot = document.createElement(`div`)
-                const cardFlipper = document.createElement(`div`)
-                const cardFrontFace = document.createElement(`div`)
-                const cardBackFace = document.createElement(`div`)
-                const backFaceContent = document.createElement(`div`)
+                    let cryptoListContainerDiv = document.getElementById(`cryptoListContainerDiv`)
+                    const cardRoot = document.createElement(`div`)
+                    const cardFlipper = document.createElement(`div`)
+                    const cardFrontFace = document.createElement(`div`)
+                    const cardBackFace = document.createElement(`div`)
+                    const backFaceContent = document.createElement(`div`)
 
-                cardRoot.className = `cardRoot`
-                cardFlipper.className = `cardFlipper`
-                cardFrontFace.className = `cardFrontFace`
-                cardBackFace.className = `cardBackFace`
-                backFaceContent.className = `backFaceContent`
+                    cardRoot.className = `cardRoot`
+                    cardFlipper.className = `cardFlipper`
+                    cardFrontFace.className = `cardFrontFace`
+                    cardBackFace.className = `cardBackFace`
+                    backFaceContent.className = `backFaceContent`
                     cardBackFace.appendChild(backFaceContent)
                     cardFlipper.appendChild(cardFrontFace)
                     cardFlipper.appendChild(cardBackFace)
                     cardRoot.appendChild(cardFlipper)
-                if (cryptoListContainerDiv) cryptoListContainerDiv.appendChild(cardRoot)
+                    if (cryptoListContainerDiv) cryptoListContainerDiv.appendChild(cardRoot)
 
                     buildFrontContent(cardFrontFace, cryptoListItem)
                     attachFlipLogic(cardFrontFace, backFaceContent, cardRoot, cryptoListItem, baseUrl)
@@ -95,28 +95,31 @@ function getPage() {
             cryptoListItemName.innerHTML = cryptoListItem.name
             showMoreBtn.textContent = `Show more info`
 
-            toggleCheckbox.addEventListener(`change`, () => {
+            toggleCheckbox.addEventListener(`change`, async () => {
                     try {
-                        let updatedCoinsList = getSavedCurrencies()
                         if (toggleCheckbox.checked) {
+                            let updatedCoinsList = getSavedCurrencies()
                             if (!updatedCoinsList.includes(cryptoListItem.symbol)) {
                                 if (updatedCoinsList.length < 5) {
                                     updatedCoinsList.push(cryptoListItem.symbol)
                                     localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList))
                                 } else {
                                     toggleCheckbox.checked = false
+                                    await displayRemoveCoinsPopUp()
                                     throw new Error(`❌ You can select up to 5 coins only`)
+
                                 }
                             }
                         } else {
+                            let currentCoins = getSavedCurrencies()
                             let newCurrencyList = []
-                            for (const item of updatedCoinsList) {
+                            for (const item of currentCoins) {
                                 if (item !== cryptoListItem.symbol) {
                                     newCurrencyList.push(item)
                                 }
                             }
-                            updatedCoinsList = newCurrencyList
-                            localStorage.setItem('coins', JSON.stringify(updatedCoinsList))
+                            currentCoins = newCurrencyList
+                            localStorage.setItem('coins', JSON.stringify(currentCoins))
                         }
                     } catch (err) {
                         if (err instanceof Error) {
@@ -167,6 +170,10 @@ function getPage() {
                     }
                 }
             )
+        }
+
+        async function displayRemoveCoinsPopUp() {
+
         }
 
         async function loadChart(chartPage: HTMLElement) {

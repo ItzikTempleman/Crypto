@@ -87,10 +87,10 @@ function getPage() {
         cryptoListItemSymbol.innerHTML = cryptoListItem.symbol.toUpperCase();
         cryptoListItemName.innerHTML = cryptoListItem.name;
         showMoreBtn.textContent = `Show more info`;
-        toggleCheckbox.addEventListener(`change`, () => {
+        toggleCheckbox.addEventListener(`change`, async () => {
             try {
-                let updatedCoinsList = getSavedCurrencies();
                 if (toggleCheckbox.checked) {
+                    let updatedCoinsList = getSavedCurrencies();
                     if (!updatedCoinsList.includes(cryptoListItem.symbol)) {
                         if (updatedCoinsList.length < 5) {
                             updatedCoinsList.push(cryptoListItem.symbol);
@@ -98,19 +98,21 @@ function getPage() {
                         }
                         else {
                             toggleCheckbox.checked = false;
+                            await displayRemoveCoinsPopUp();
                             throw new Error(`❌ You can select up to 5 coins only`);
                         }
                     }
                 }
                 else {
+                    let currentCoins = getSavedCurrencies();
                     let newCurrencyList = [];
-                    for (const item of updatedCoinsList) {
+                    for (const item of currentCoins) {
                         if (item !== cryptoListItem.symbol) {
                             newCurrencyList.push(item);
                         }
                     }
-                    updatedCoinsList = newCurrencyList;
-                    localStorage.setItem('coins', JSON.stringify(updatedCoinsList));
+                    currentCoins = newCurrencyList;
+                    localStorage.setItem('coins', JSON.stringify(currentCoins));
                 }
             }
             catch (err) {
@@ -154,6 +156,8 @@ function getPage() {
                 cardItem.classList.remove(`flipped`);
             }
         });
+    }
+    async function displayRemoveCoinsPopUp() {
     }
     async function loadChart(chartPage) {
         // getSavedCurrencies()
