@@ -151,11 +151,10 @@ function getPage() {
                         const prices = data.market_data.current_price
 
                         backContent.innerHTML = `
-<p><strong>Current ${data.name} market value</strong></p>
-            
-            <p>${formatPrices(prices.usd)} $</p>
-            <p>${formatPrices(prices.eur)} €</p>
-            <p>${formatPrices(prices.ils)} ₪</p>
+<p><strong>${data.name}</strong></p>
+            <p><strong>${formatPrices(prices.usd)} $</strong></p>
+            <p><strong>${formatPrices(prices.eur)} €</strong></p>
+            <p><strong>${formatPrices(prices.ils)} ₪</strong></p>
         `
                         backContent.appendChild(showLessInfoBtn)
 

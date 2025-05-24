@@ -8,8 +8,17 @@
     width: 100%;
 }
 
-.homeScreenTitle h2 {
-    color: white;
+.homeScreenTitle{
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    background-color: rgba(128, 128, 128, 0.5);
+}
+
+
+.homeScreenTitle h2, h4{
+    color: black;
+    font-weight: bold;
 }
 
 .searchInput {
@@ -51,7 +60,7 @@
     position: relative;
     width: 100%;
     max-width: 200px;
-    height: 250px;
+    height: 280px;
     background-color: transparent;
 }
 
@@ -123,7 +132,6 @@
 .backFaceContent p{
     color: black;
     font-size: 14px;
-    font-family: Arial;
 }
 
 .showLessInfoBtn {
