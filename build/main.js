@@ -82,8 +82,16 @@ function getPage() {
         toggleWrapper.className = `toggleWrapper`;
         toggleCheckbox.className = `toggleCheckbox`;
         toggleCheckbox.type = `checkbox`;
+        toggleCheckbox.setAttribute(`data-coin-id`, coin.id);
         toggleVisualTrack.className = `toggleVisualTrack`;
-        toggleCheckbox.checked = getSavedCurrencies().includes(coin.name);
+        let saved = false;
+        for (let savedCoin of getSavedCurrencies()) {
+            if (savedCoin.id === coin.id) {
+                saved = true;
+                break;
+            }
+        }
+        toggleCheckbox.checked = saved;
         cryptoListItemIcon.src = coin.image;
         cryptoListItemSymbol.innerHTML = coin.symbol.toUpperCase();
         cryptoListItemName.innerHTML = coin.name;
@@ -91,9 +99,16 @@ function getPage() {
             try {
                 if (toggleCheckbox.checked) {
                     let updatedCoinsList = getSavedCurrencies();
-                    if (!updatedCoinsList.includes(coin.name)) {
+                    let alreadyExists = false;
+                    for (let item of updatedCoinsList) {
+                        if (item.id === coin.id) {
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyExists) {
                         if (updatedCoinsList.length < 5) {
-                            updatedCoinsList.push(coin.name);
+                            updatedCoinsList.push(coin);
                             localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList));
                         }
                         else {
@@ -107,12 +122,11 @@ function getPage() {
                     let currentCoins = getSavedCurrencies();
                     let newCurrencyList = [];
                     for (const item of currentCoins) {
-                        if (item !== coin.name) {
+                        if (item.id !== coin.id) {
                             newCurrencyList.push(item);
                         }
                     }
-                    currentCoins = newCurrencyList;
-                    localStorage.setItem('coins', JSON.stringify(currentCoins));
+                    localStorage.setItem('coins', JSON.stringify(newCurrencyList));
                 }
             }
             catch (err) {
@@ -140,10 +154,12 @@ function getPage() {
             if (cardRoot.classList.contains(`hamburger`))
                 return;
             try {
-                const data = await getCryptoCurrency(`${baseUrl}${coin.name.toLowerCase()}`);
+                await delay(1000);
+                const data = await getCryptoCurrency(`${baseUrl}${coin.id}`);
+                console.log(data);
                 const prices = data.market_data.current_price;
                 backFaceContent.innerHTML = `
-<p><strong>${data.name}</strong></p>
+            <p><strong>${data.name}</strong></p>
             <p><strong>${formatPrices(prices.usd)} $</strong></p>
             <p><strong>${formatPrices(prices.eur)} €</strong></p>
             <p><strong>${formatPrices(prices.ils)} ₪</strong></p>
@@ -157,6 +173,9 @@ function getPage() {
             catch (err) {
                 throw new Error(`❌ Failed to load coin info`);
             }
+            function delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
         });
     }
     async function displayRemoveCoinsPopUp() {
@@ -164,21 +183,44 @@ function getPage() {
         const form = document.createElement(`form`);
         dialog.appendChild(form);
         document.body.appendChild(dialog);
-        let checkedCoins = getSavedCurrencies();
         const savedCoinListDiv = document.createElement(`div`);
         savedCoinListDiv.className = `savedCoinListDiv`;
         form.appendChild(savedCoinListDiv);
-        let html = `<strong><p>❌You can select up to five coins. remove a coin</p></strong>`;
-        checkedCoins.forEach((coin) => {
-            console.log(coin);
-            let piTag = `
-
-
-<p>${coin}</p>`;
-            html += piTag;
+        const closeDialog = document.createElement(`button`);
+        closeDialog.textContent = `X`;
+        form.appendChild(closeDialog);
+        closeDialog.addEventListener(`click`, () => {
+            dialog.close();
+        });
+        updateHtml(savedCoinListDiv, dialog);
+        dialog.showModal();
+    }
+    function updateHtml(savedCoinListDiv, dialog) {
+        let checkedCoins = getSavedCurrencies();
+        let html = `<strong><p>You can select up to five coins. remove a coin</p></strong>`;
+        checkedCoins.forEach((coin, index) => {
+            html += `
+        <div class="coinToDeleteDiv" id="coinToDeleteDiv-${index}">
+            <i class="bi bi-trash2-fill" style="cursor:pointer" id="removeIcon-${index}"></i>
+            <p><img src="${coin.image}"></p>
+            <p>${coin.name}</p>
+        </div>`;
         });
         savedCoinListDiv.innerHTML = html;
-        dialog.showModal();
+        checkedCoins.forEach((coin, index) => {
+            const deleteCoinIcon = document.getElementById(`removeIcon-${index}`);
+            deleteCoinIcon?.addEventListener(`click`, () => {
+                const updatedList = checkedCoins.filter((selectedCoin) => selectedCoin.id !== coin.id);
+                localStorage.setItem('coins', JSON.stringify(updatedList));
+                const toggle = document.querySelector(`.toggleCheckbox[data-coin-id="${coin.id}"]`);
+                if (toggle)
+                    toggle.checked = false;
+                if (updatedList.length < 1) {
+                    dialog.close();
+                }
+                updateHtml(savedCoinListDiv, dialog);
+            });
+        });
     }
     function formatPrices(price) {
         return price.toLocaleString('en-US', {
