@@ -8,8 +8,7 @@
 .homeScreenTitle{
     width: 100%;
     padding: 20px;
-    text-align: center;
-    background-color: rgba(128, 128, 128, 0.13);
+    text-align: start;
 }
 
 .parallaxBackground {
@@ -22,11 +21,13 @@
 }
 
 
-.homeScreenTitle h2, h4{
-    color: black;
-    font-weight: bold;
+.homeScreenTitle h4, p{
+    color: white;
 }
 
+.cardFrontFace p{
+    color: black;
+}
 .searchInput {
     padding: 4px;
     border-radius: 6px;
@@ -35,30 +36,31 @@
 
 .cryptoListContainerDiv {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    max-width: calc((200px * 4) + (20px * 3));
-    margin: 0 auto;
-    gap: 20px;
-    padding: 20px 0;
+    margin: 10px auto;
+    width: 100%;
+    max-width: 80%;
+    gap: 15px;
+    height: auto;
+    padding: 10px;
     box-sizing: border-box;
+    grid-template-columns: repeat(auto-fill, 200px);
+    justify-content: center;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 600px) {
     .cryptoListContainerDiv {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1100px) {
     .cryptoListContainerDiv {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 200px);
     }
 }
 
-@media (max-width: 480px) {
-    .cryptoListContainerDiv {
-        grid-template-columns: 1fr;
-    }
+.className{
+    color: black;
 }
 
 /*card elements*/
@@ -124,6 +126,18 @@
     width: 100%;
 }
 
+dialog {
+    background-color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+}
+
+dialog p{
+    color: black;
+}
 .backFaceContent {
     display: flex;
     flex-direction: column;

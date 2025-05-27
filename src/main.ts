@@ -309,15 +309,13 @@ function getPage() {
         }
 
         async function loadChart(chartPage: HTMLElement) {
-            chartPage.style.background = `red`
             getSavedCurrencies()
             await getDelayedData()
         }
 
         async function getDelayedData() {
-            let arrayOfSavedCurrencies = getSavedCurrencies()
             setInterval(async () => {
-                    let predictionResponse = await getCryptoCurrency(`https://min-api.cryptocompare.com/data/pricemulti?tsyms=usd&fsyms=${arrayOfSavedCurrencies}`)
+                    let predictionResponse = await getCryptoCurrency(`https://min-api.cryptocompare.com/data/pricemulti?tsyms=usd&fsyms=${getSavedCurrencies()}`)
                     console.log(predictionResponse)
                 }, 1000
             )

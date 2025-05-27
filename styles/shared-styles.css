@@ -75,7 +75,7 @@ img {
 
 
 .chartAndAboutScreenTitle h2 {
-    color: grey;
+    color: black;
     font-size: 20px;
 }
 
@@ -91,16 +91,20 @@ main {
     box-sizing: border-box;
 }
 
-.aboutContentContainer {
-    max-width: 880px;
-    margin: 50px auto;
+.aboutContentContainer, .cryptoListContainerDiv {
+
     padding: 30px;
     background: linear-gradient(to right, #1e6570, #1e7d8c, #b4daff);
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
     font-family: Arial, sans-serif;
-    color: #333;
+    color: black;
+}
+
+.aboutContentContainer{
+    margin: 20px auto;
     display: flex;
+    width: 780px;
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -117,7 +121,7 @@ main {
 
 .aboutTitle {
     font-size: 28px;
-    color: #002245;
+    color: black;
     margin-bottom: 10px;
 }
 
@@ -146,22 +150,20 @@ main {
 }
 
 .developerInfo a {
-    color: #002245;
+    color: black;
 }
 
 
 .developerNote {
     margin-top: 30px;
     font-style: italic;
-    color: #002245;
+    color: black;
 }
 
 .footer {
     text-align: center;
-    background-color: rgba(128, 128, 128, 0.5);
 }
 
 .footer p {
-    font-weight: bold;
     color: black;
 }
