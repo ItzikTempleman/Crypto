@@ -1,18 +1,24 @@
 .homeScreenContainer {
-    display: flex;
-    flex-direction: column;
-    background-image: url('../assets/images/crypt-main.jpg');
-    background-size: contain;
-    background-position: top center;
+    position: relative;
+    z-index: 1;
+    background: transparent;
     min-height: 100vh;
-    width: 100%;
 }
 
 .homeScreenTitle{
     width: 100%;
     padding: 20px;
     text-align: center;
-    background-color: rgba(128, 128, 128, 0.5);
+    background-color: rgba(128, 128, 128, 0.13);
+}
+
+.parallaxBackground {
+    position: absolute;
+    width: 100%;
+    height: 150vh;
+    background-image: url('../assets/images/crypt-main.jpg');
+    background-position: center top;
+    transition: none;
 }
 
 

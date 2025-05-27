@@ -19,6 +19,11 @@ function getPage() {
         const cryptoExtListUsd = `markets?vs_currency=usd`;
         switch (getPage()) {
             case PageId.HOME:
+                window.addEventListener('scroll', () => {
+                    let background = document.querySelector('.parallaxBackground');
+                    // @ts-ignore
+                    background.style.transform = `translateY(${window.scrollY * 0.8}px)`;
+                });
                 try {
                     const cryptoList = await getCryptoCurrency(`${baseUrl}${cryptoExtListUsd}`);
                     const container = document.getElementById('cryptoListContainerDiv');
@@ -154,7 +159,7 @@ function getPage() {
             if (cardRoot.classList.contains(`hamburger`))
                 return;
             try {
-                await delay(1000);
+                await delay(600);
                 const data = await getCryptoCurrency(`${baseUrl}${coin.id}`);
                 console.log(data);
                 const prices = data.market_data.current_price;

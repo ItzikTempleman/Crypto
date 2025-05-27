@@ -17,10 +17,15 @@ function getPage() {
             const cryptoExtListUsd: string = `markets?vs_currency=usd`
             switch (getPage()) {
                 case PageId.HOME:
+                    window.addEventListener('scroll', () => {
+                    let background=document.querySelector('.parallaxBackground')
+                        // @ts-ignore
+                        background.style.transform = `translateY(${window.scrollY * 0.8}px)`
 
+                    })
                     try {
                         const cryptoList = await getCryptoCurrency(`${baseUrl}${cryptoExtListUsd}`)
-                        const container:HTMLElement | null = document.getElementById('cryptoListContainerDiv')
+                        const container: HTMLElement | null = document.getElementById('cryptoListContainerDiv')
                         displayList(cryptoList, baseUrl, container)
                         searchCoin(cryptoList, baseUrl, container)
                     } catch (err) {
@@ -48,7 +53,7 @@ function getPage() {
             return await response.json()
         }
 
-        function displayList(cryptoList: any, baseUrl: string, container:any) {
+        function displayList(cryptoList: any, baseUrl: string, container: any) {
 
             cryptoList.forEach((coin: any) => {
 
@@ -72,7 +77,7 @@ function getPage() {
                     cardFlipper.appendChild(cardFrontFace)
                     cardFlipper.appendChild(cardBackFace)
                     cardRoot.appendChild(cardFlipper)
-                   container.appendChild(cardRoot)
+                    container.appendChild(cardRoot)
 
                     buildFrontContent(cardFrontFace, coin, showMoreBtn)
                     attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn)
@@ -106,7 +111,6 @@ function getPage() {
             cryptoListItemIcon.src = coin.image
             cryptoListItemSymbol.innerHTML = coin.symbol.toUpperCase()
             cryptoListItemName.innerHTML = coin.name
-
 
             toggleCheckbox.addEventListener(`change`, async () => {
                     try {
@@ -171,7 +175,7 @@ function getPage() {
                     if (cardRoot.classList.contains(`hamburger`)) return
 
                     try {
-                        await delay(1000)
+                        await delay(600)
                         const data = await getCryptoCurrency(`${baseUrl}${coin.id}`)
                         console.log(data)
                         const prices = data.market_data.current_price
@@ -200,7 +204,6 @@ function getPage() {
                 }
             )
         }
-
 
         async function displayDialog(toUpdateList: boolean) {
             const dialog = document.createElement(`dialog`)
@@ -260,7 +263,6 @@ function getPage() {
             })
         }
 
-
         function formatPrices(price: number): string {
             return price.toLocaleString('en-US', {
                     maximumFractionDigits: 0
@@ -268,7 +270,7 @@ function getPage() {
             )
         }
 
-        function searchCoin(coins: any, baseUrl: string, container:any) {
+        function searchCoin(coins: any, baseUrl: string, container: any) {
 
             const input = document.getElementById("searchInput")
 
@@ -299,13 +301,12 @@ function getPage() {
 
 
                     } else {
-                       container.innerHTML = ''
+                        container.innerHTML = ''
                         displayList(coins, baseUrl, container)
                     }
                 }
             )
         }
-
 
         async function loadChart(chartPage: HTMLElement) {
             chartPage.style.background = `red`
