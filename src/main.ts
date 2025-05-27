@@ -17,9 +17,12 @@ function getPage() {
             const cryptoExtListUsd: string = `markets?vs_currency=usd`
             switch (getPage()) {
                 case PageId.HOME:
+
                     try {
                         const cryptoList = await getCryptoCurrency(`${baseUrl}${cryptoExtListUsd}`)
-                        displayList(cryptoList, baseUrl)
+                        const container:HTMLElement | null = document.getElementById('cryptoListContainerDiv')
+                        displayList(cryptoList, baseUrl, container)
+                        searchCoin(cryptoList, baseUrl, container)
                     } catch (err) {
                         if (err instanceof Error) {
                             console.log(err.message)
@@ -45,10 +48,10 @@ function getPage() {
             return await response.json()
         }
 
-        function displayList(cryptoList: any, baseUrl: string) {
+        function displayList(cryptoList: any, baseUrl: string, container:any) {
 
             cryptoList.forEach((coin: any) => {
-                    let cryptoListContainerDiv = document.getElementById(`cryptoListContainerDiv`)
+
                     const cardRoot = document.createElement(`div`)
                     const cardFlipper = document.createElement(`div`)
                     const cardFrontFace = document.createElement(`div`)
@@ -69,7 +72,7 @@ function getPage() {
                     cardFlipper.appendChild(cardFrontFace)
                     cardFlipper.appendChild(cardBackFace)
                     cardRoot.appendChild(cardFlipper)
-                    if (cryptoListContainerDiv) cryptoListContainerDiv.appendChild(cardRoot)
+                   container.appendChild(cardRoot)
 
                     buildFrontContent(cardFrontFace, coin, showMoreBtn)
                     attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn)
@@ -106,44 +109,46 @@ function getPage() {
 
 
             toggleCheckbox.addEventListener(`change`, async () => {
-                try {
-                    if (toggleCheckbox.checked) {
-                        let updatedCoinsList = getSavedCurrencies()
+                    try {
+                        if (toggleCheckbox.checked) {
+                            let updatedCoinsList = getSavedCurrencies()
 
-                        let alreadyExists = false
-                        for (let item of updatedCoinsList) {
-                            if (item.id === coin.id) {
-                                alreadyExists = true
-                                break
+                            let alreadyExists = false
+                            for (let item of updatedCoinsList) {
+                                if (item.id === coin.id) {
+                                    alreadyExists = true
+                                    break
+                                }
                             }
-                        }
 
-                        if (!alreadyExists) {
-                            if (updatedCoinsList.length < 5) {
-                                updatedCoinsList.push(coin)
-                                localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList))
-                            } else {
-                                toggleCheckbox.checked = false
-                                await displayRemoveCoinsPopUp()
-                                throw new Error(`❌ You can select up to 5 coins only`)
+                            if (!alreadyExists) {
+                                if (updatedCoinsList.length < 5) {
+                                    updatedCoinsList.push(coin)
+                                    localStorage.setItem(`coins`, JSON.stringify(updatedCoinsList))
+                                } else {
+                                    toggleCheckbox.checked = false
+                                    await displayDialog(true)
+                                    throw new Error(`❌ You can select up to 5 coins only`)
+                                }
                             }
-                        }
-                    } else {
-                        let currentCoins = getSavedCurrencies()
-                        let newCurrencyList = []
-                        for (const item of currentCoins) {
-                            if (item.id !== coin.id) {
-                                newCurrencyList.push(item)
+                        } else {
+                            let currentCoins = getSavedCurrencies()
+                            let newCurrencyList = []
+                            for (const item of currentCoins) {
+                                if (item.id !== coin.id) {
+                                    newCurrencyList.push(item)
+                                }
                             }
+                            localStorage.setItem('coins', JSON.stringify(newCurrencyList))
                         }
-                        localStorage.setItem('coins', JSON.stringify(newCurrencyList))
-                    }
-                } catch (err) {
-                    if (err instanceof Error) {
-                        console.log(err.message)
+                    } catch (err) {
+                        if (err instanceof Error) {
+                            console.log(err.message)
+                        }
                     }
                 }
-            })
+            )
+
             toggleWrapper.appendChild(toggleCheckbox)
             toggleWrapper.appendChild(toggleVisualTrack)
             cardFrontFace.appendChild(toggleWrapper)
@@ -188,34 +193,41 @@ function getPage() {
                     } catch (err) {
                         throw new Error(`❌ Failed to load coin info`)
                     }
-                function delay(ms: number): Promise<void> {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
+
+                    function delay(ms: number): Promise<void> {
+                        return new Promise(resolve => setTimeout(resolve, ms));
+                    }
                 }
             )
         }
 
-        async function displayRemoveCoinsPopUp() {
+
+        async function displayDialog(toUpdateList: boolean) {
             const dialog = document.createElement(`dialog`)
             const form = document.createElement(`form`)
             dialog.appendChild(form)
             document.body.appendChild(dialog)
 
-            const savedCoinListDiv = document.createElement(`div`)
-            savedCoinListDiv.className = `savedCoinListDiv`
-            form.appendChild(savedCoinListDiv)
+            const list = document.createElement(`div`)
+            list.className = `list`
+            form.appendChild(list)
 
             const closeDialog = document.createElement(`button`)
             closeDialog.textContent = `X`
             form.appendChild(closeDialog)
             closeDialog.addEventListener(`click`, () => {
-                dialog.close()
-            })
-            updateHtml(savedCoinListDiv, dialog)
+                    dialog.close()
+                }
+            )
+            if (toUpdateList) {
+                updateHtml(list, dialog)
+            } else {
+                list.innerHTML = `<strong><p>No matching results</p></strong>`
+            }
             dialog.showModal()
         }
 
-        function updateHtml(savedCoinListDiv: HTMLDivElement, dialog: HTMLDialogElement) {
+        function updateHtml(list: HTMLDivElement, dialog: HTMLDialogElement) {
             let checkedCoins = getSavedCurrencies()
             let html = `<strong><p>You can select up to five coins. remove a coin</p></strong>`
 
@@ -229,7 +241,7 @@ function getPage() {
                 }
             )
 
-            savedCoinListDiv.innerHTML = html
+            list.innerHTML = html
 
             checkedCoins.forEach((coin: any, index: number) => {
                 const deleteCoinIcon = document.getElementById(`removeIcon-${index}`)
@@ -243,7 +255,7 @@ function getPage() {
                     if (updatedList.length < 1) {
                         dialog.close()
                     }
-                    updateHtml(savedCoinListDiv, dialog)
+                    updateHtml(list, dialog)
                 })
             })
         }
@@ -251,11 +263,49 @@ function getPage() {
 
         function formatPrices(price: number): string {
             return price.toLocaleString('en-US', {
-                    minimumFractionDigits: 0,
                     maximumFractionDigits: 0
                 }
             )
         }
+
+        function searchCoin(coins: any, baseUrl: string, container:any) {
+
+            const input = document.getElementById("searchInput")
+
+            input?.addEventListener("input", async (event) => {
+                    const target = event.target as HTMLInputElement
+                    const typedValue = target.value.toLowerCase().trim()
+                    if (typedValue.length > 2) {
+                        let matchFound = false
+                        let foundCards: any = []
+                        for (const coin of coins) {
+                            if (
+                                coin.name.toUpperCase().includes(typedValue) ||
+                                coin.symbol.toUpperCase().includes(typedValue) ||
+                                coin.name.toLowerCase().includes(typedValue) ||
+                                coin.symbol.toLowerCase().includes(typedValue)
+                            ) {
+                                foundCards.push(coin)
+                                matchFound = true
+                            }
+                        }
+
+                        container.innerHTML = ''
+                        if (matchFound) {
+                            displayList(foundCards, baseUrl, container)
+                        } else if (typedValue.length > 4) {
+                            await displayDialog(false)
+                        }
+
+
+                    } else {
+                       container.innerHTML = ''
+                        displayList(coins, baseUrl, container)
+                    }
+                }
+            )
+        }
+
 
         async function loadChart(chartPage: HTMLElement) {
             chartPage.style.background = `red`
@@ -281,4 +331,5 @@ function getPage() {
             return coinsList
         }
     }
-)()
+)
+()

@@ -21,7 +21,9 @@ function getPage() {
             case PageId.HOME:
                 try {
                     const cryptoList = await getCryptoCurrency(`${baseUrl}${cryptoExtListUsd}`);
-                    displayList(cryptoList, baseUrl);
+                    const container = document.getElementById('cryptoListContainerDiv');
+                    displayList(cryptoList, baseUrl, container);
+                    searchCoin(cryptoList, baseUrl, container);
                 }
                 catch (err) {
                     if (err instanceof Error) {
@@ -46,9 +48,8 @@ function getPage() {
         }
         return await response.json();
     }
-    function displayList(cryptoList, baseUrl) {
+    function displayList(cryptoList, baseUrl, container) {
         cryptoList.forEach((coin) => {
-            let cryptoListContainerDiv = document.getElementById(`cryptoListContainerDiv`);
             const cardRoot = document.createElement(`div`);
             const cardFlipper = document.createElement(`div`);
             const cardFrontFace = document.createElement(`div`);
@@ -66,8 +67,7 @@ function getPage() {
             cardFlipper.appendChild(cardFrontFace);
             cardFlipper.appendChild(cardBackFace);
             cardRoot.appendChild(cardFlipper);
-            if (cryptoListContainerDiv)
-                cryptoListContainerDiv.appendChild(cardRoot);
+            container.appendChild(cardRoot);
             buildFrontContent(cardFrontFace, coin, showMoreBtn);
             attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn);
         });
@@ -113,7 +113,7 @@ function getPage() {
                         }
                         else {
                             toggleCheckbox.checked = false;
-                            await displayRemoveCoinsPopUp();
+                            await displayDialog(true);
                             throw new Error(`❌ You can select up to 5 coins only`);
                         }
                     }
@@ -178,24 +178,29 @@ function getPage() {
             }
         });
     }
-    async function displayRemoveCoinsPopUp() {
+    async function displayDialog(toUpdateList) {
         const dialog = document.createElement(`dialog`);
         const form = document.createElement(`form`);
         dialog.appendChild(form);
         document.body.appendChild(dialog);
-        const savedCoinListDiv = document.createElement(`div`);
-        savedCoinListDiv.className = `savedCoinListDiv`;
-        form.appendChild(savedCoinListDiv);
+        const list = document.createElement(`div`);
+        list.className = `list`;
+        form.appendChild(list);
         const closeDialog = document.createElement(`button`);
         closeDialog.textContent = `X`;
         form.appendChild(closeDialog);
         closeDialog.addEventListener(`click`, () => {
             dialog.close();
         });
-        updateHtml(savedCoinListDiv, dialog);
+        if (toUpdateList) {
+            updateHtml(list, dialog);
+        }
+        else {
+            list.innerHTML = `<strong><p>No matching results</p></strong>`;
+        }
         dialog.showModal();
     }
-    function updateHtml(savedCoinListDiv, dialog) {
+    function updateHtml(list, dialog) {
         let checkedCoins = getSavedCurrencies();
         let html = `<strong><p>You can select up to five coins. remove a coin</p></strong>`;
         checkedCoins.forEach((coin, index) => {
@@ -206,7 +211,7 @@ function getPage() {
             <p>${coin.name}</p>
         </div>`;
         });
-        savedCoinListDiv.innerHTML = html;
+        list.innerHTML = html;
         checkedCoins.forEach((coin, index) => {
             const deleteCoinIcon = document.getElementById(`removeIcon-${index}`);
             deleteCoinIcon?.addEventListener(`click`, () => {
@@ -218,14 +223,44 @@ function getPage() {
                 if (updatedList.length < 1) {
                     dialog.close();
                 }
-                updateHtml(savedCoinListDiv, dialog);
+                updateHtml(list, dialog);
             });
         });
     }
     function formatPrices(price) {
         return price.toLocaleString('en-US', {
-            minimumFractionDigits: 0,
             maximumFractionDigits: 0
+        });
+    }
+    function searchCoin(coins, baseUrl, container) {
+        const input = document.getElementById("searchInput");
+        input?.addEventListener("input", async (event) => {
+            const target = event.target;
+            const typedValue = target.value.toLowerCase().trim();
+            if (typedValue.length > 2) {
+                let matchFound = false;
+                let foundCards = [];
+                for (const coin of coins) {
+                    if (coin.name.toUpperCase().includes(typedValue) ||
+                        coin.symbol.toUpperCase().includes(typedValue) ||
+                        coin.name.toLowerCase().includes(typedValue) ||
+                        coin.symbol.toLowerCase().includes(typedValue)) {
+                        foundCards.push(coin);
+                        matchFound = true;
+                    }
+                }
+                container.innerHTML = '';
+                if (matchFound) {
+                    displayList(foundCards, baseUrl, container);
+                }
+                else if (typedValue.length > 4) {
+                    await displayDialog(false);
+                }
+            }
+            else {
+                container.innerHTML = '';
+                displayList(coins, baseUrl, container);
+            }
         });
     }
     async function loadChart(chartPage) {
