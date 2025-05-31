@@ -5,14 +5,25 @@
     min-height: 100vh;
 }
 
-.homeScreenTitle{
+.homeScreenTitle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
+
     margin: 60px;
     background: linear-gradient(to right, #96f4ff, #dbfbfd, #96f4ff);
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+    padding: 20px;
 }
 
+.homeScreenTitle h2,
+.homeScreenTitle p {
+    margin: 0;
+    color: black;
+}
 .parallaxBackground {
     position: absolute;
     width: 100%;
@@ -24,10 +35,6 @@
     z-index: -1;
 }
 
-
-.homeScreenTitle h2, p{
-    color: black;
-}
 
 .cardFrontFace p{
     color: black;
