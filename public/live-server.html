@@ -13,13 +13,7 @@
   <script defer src="../build/main.js"></script>
 </head>
 
-
-
-
-
-
-
-<body>
+<body onload="loadChartScreen()">
 <div id="chartScreenContainer" class="chartScreenContainer">
 
   <header>
@@ -31,14 +25,14 @@
       </ul>
     </nav>
   </header>
-  <main>
-    <section class="chartAndAboutScreenTitle">
+  <main class="liveServeMain">
+    <div class="chartAndAboutScreenTitle">
       <h2>Live view</h2>
-    </section>
-
-    <div class="fullScreenContainer">
-      <div class="chartContainer" id="chartContainer"></div>
     </div>
+
+
+      <div class="chartContainer" id="chartContainer"></div>
+
 
   </main>
   <footer class="footer">
