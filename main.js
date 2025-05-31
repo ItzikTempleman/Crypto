@@ -10,7 +10,7 @@ function getSavedCurrencies() {
     return coinsList;
 }
 
-// Loads the home screen: adds parallax scroll effect, fetches coins, and renders list with search
+// Loads the home screen: adds parallax scroll effect, fetches coins, and renders a list with search
 async function loadHomeScreen() {
     const baseUrl = `https://api.coingecko.com/api/v3/coins/`;
     const cryptoExtListUsd = `markets?vs_currency=usd`;
@@ -175,7 +175,7 @@ function attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn) 
     });
 }
 
-// Displays a modal dialog, optionally with list of selected coins
+// Displays a modal dialog, optionally with a list of selected coins
 async function displayDialog(toUpdateList) {
     const dialog = document.createElement(`dialog`);
     const form = document.createElement(`form`);
@@ -221,7 +221,7 @@ function callDialog(list, checkedCoins) {
     list.innerHTML = html;
 }
 
-// Adds event listeners to trash icons in dialog to remove coins
+// Adds event listeners to trash icons in the dialog to remove coins
 function manageDeleteCoins(list, dialog) {
     const deleteIcons = list.querySelectorAll('.bi-trash2-fill');
 
@@ -323,7 +323,7 @@ async function loadChartScreen() {
             },
             grid: {
                 vertLines: {color: "#eee"},
-                horzLines: {color: "#eee"},
+                horizontalLines: {color: "#eee"},
             },
             timeScale: {
                 timeVisible: true,
@@ -352,7 +352,7 @@ async function fetchCandles(symbol) {
     }));
 }
 
-// Maps array of symbols into a comma-separated string for API usage
+// Maps an array of symbols into a comma-separated string for API usage
 function mapCryptoValues(arr) {
     let newStrings = ``;
     arr.map((symbol, index) => {
