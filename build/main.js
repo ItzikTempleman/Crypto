@@ -102,7 +102,7 @@ function buildFrontContent(cardFrontFace, coin, showMoreBtn) {
                     } else {
                         toggleCheckbox.checked = false;
                         await displayDialog(true);
-                         new Error(`❌ You can select up to 5 coins only`);
+                        new Error(`❌ You can select up to 5 coins only`);
                     }
                 }
             } else {
@@ -138,32 +138,32 @@ function attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn) 
         cardRoot.classList.remove(`customFlip`);
     });
     showMoreBtn?.addEventListener("click", async () => {
-        if (cardRoot.classList.contains(`customFlip`))
-            return;
-        try {
-            await delay(600);
-            const data = await getCryptoCurrency(`${baseUrl}${coin.id}`);
-            console.log(data);
-            const prices = data.market_data.current_price;
-            backFaceContent.innerHTML = `
+            if (cardRoot.classList.contains(`customFlip`)) return;
+            try {
+                await delay(600);
+                const data = await getCryptoCurrency(`${baseUrl}${coin.id}`);
+                console.log(data);
+                const prices = data.market_data.current_price;
+                backFaceContent.innerHTML = `
             <p><strong>${data.name}</strong></p>
             <p><strong>${formatPrices(prices.usd)} $</strong></p>
             <p><strong>${formatPrices(prices.eur)} €</strong></p>
             <p><strong>${formatPrices(prices.ils)} ₪</strong></p>
         `;
-            backFaceContent.appendChild(showLessInfoBtn);
-            requestAnimationFrame(() => {
-                cardRoot.classList.add(`customFlip`);
-                console.log(cardRoot.classList);
-            });
-        } catch (err) {
-            throw new Error(`❌ Failed to load coin info`);
-        }
+                backFaceContent.appendChild(showLessInfoBtn);
+                requestAnimationFrame(() => {
+                    cardRoot.classList.add(`customFlip`);
+                    console.log(cardRoot.classList);
+                });
+            } catch (err) {
+                throw new Error(`❌ Failed to load coin info`);
+            }
 
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+            function delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
         }
-    });
+    );
 }
 
 async function displayDialog(toUpdateList) {
@@ -244,10 +244,7 @@ function searchCoin(coins, baseUrl, container) {
             let matchFound = false;
             let foundCards = [];
             for (const coin of coins) {
-                if (coin.name.toUpperCase().includes(typedValue) ||
-                    coin.symbol.toUpperCase().includes(typedValue) ||
-                    coin.name.toLowerCase().includes(typedValue) ||
-                    coin.symbol.toLowerCase().includes(typedValue)) {
+                if (coin.name.toUpperCase().includes(typedValue) || coin.symbol.toUpperCase().includes(typedValue) || coin.name.toLowerCase().includes(typedValue) || coin.symbol.toLowerCase().includes(typedValue)) {
                     foundCards.push(coin);
                     matchFound = true;
                 }
@@ -266,20 +263,78 @@ function searchCoin(coins, baseUrl, container) {
 }
 
 async function loadChartScreen() {
-    const chartScreenContainer =document.getElementById(`chartScreenContainer`);
+    const cryptoItems = getSavedCurrencies()
+    let cryptoSymbol = []
+    cryptoItems.forEach(item => {
+        cryptoSymbol.push(item.symbol);
+    })
 
+    setInterval(async () => {
+        let predictionResponse = await getCryptoCurrency(`https://min-api.cryptocompare.com/data/pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
+        const now = Math.floor(Date.now() / 1000);
+        for (const symbol of cryptoSymbol) {
+            const upper = symbol.toUpperCase();
+            const price = predictionResponse[upper]?.USD;
+            if (price && chartMap[upper]) {
+                chartMap[upper].series.update({
+                    time: now,
+                    open: price,
+                    high: price,
+                    low: price,
+                    close: price
+                });
+            }
+        }
+    }, 1000);
+    const chartMap = {};
+    const container = document.getElementById("liveChartsContainer");
 
-    // async function getDelayedData() {
-//     let cryptoSymbol = [];
-//     getSavedCurrencies().forEach((cryptoItem) => {
-//         cryptoSymbol = Array.from(cryptoItem.symbol);
-//     });
-//     setInterval(async () => {
-//         const cryptoItems = getSavedCurrencies();
-//         let predictionResponse = await getCryptoCurrency(`https://min-api.cryptocompare.com/data/pricemulti?tsyms=usd&fsyms=${cryptoSymbol}`);
-//         console.log(predictionResponse);
-//     }, 1000);
-// }
+    for (const item of cryptoItems) {
+        const symbol = item.symbol.toUpperCase();
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = `<h4>${symbol}</h4><div id="chart-${symbol}" style="height:300px;"></div>`;
+        container.appendChild(wrapper);
+        const chart = LightweightCharts.createChart(`chart-${symbol}`, {
+                layout: {
+                    background: {color: "#ffffff"},
+                    textColor: "#000000",
+                },
+                grid: {
+                    vertLines: {color: "#eee"},
+                    horzLines: {color: "#eee"},
+                },
+                timeScale: {
+                    timeVisible: true,
+                    secondsVisible: false,
+                },
+            }
+        );
+        const series = chart.addCandlestickSeries();
+        chartMap[symbol] = {chart, series};
 
+        const history = await fetchCandles(symbol);
+        series.setData(history);
+    }
 }
 
+async function fetchCandles(symbol) {
+    const res = await fetch(`https://min-api.cryptocompare.com/data/v2/histominute?fsym=${symbol}&tsym=USD&limit=5`);
+    const json = await res.json();
+    return json.Data.Data.map(item => ({
+        time: item.time,
+        open: item.open,
+        high: item.high,
+        low: item.low,
+        close: item.close
+    }));
+}
+
+function mapCryptoValues(arr) {
+    let newStrings = ``
+    arr.map((symbol, index) => {
+        if (index !== arr.length - 1) {
+            newStrings += symbol + `,`
+        } else newStrings += symbol
+    })
+    return newStrings
+}
