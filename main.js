@@ -10,6 +10,7 @@ function getSavedCurrencies() {
     return coinsList;
 }
 
+const liveUrl=`https://min-api.cryptocompare.com/data/`
 // Loads the home screen: adds parallax scroll effect, fetches coins, and renders a list with search
 async function loadHomeScreen() {
     const baseUrl = `https://api.coingecko.com/api/v3/coins/`;
@@ -144,6 +145,7 @@ function attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn) 
     showLessInfoBtn.className = `showLessInfoBtn`;
     showLessInfoBtn.textContent = `Show less info`;
     showLessInfoBtn.addEventListener(`click`, () => {
+        //remove customFlip word from class name when to flip back
         cardRoot.classList.remove(`customFlip`);
     });
 
@@ -151,7 +153,7 @@ function attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn) 
     showMoreBtn?.addEventListener("click", async () => {
         if (cardRoot.classList.contains(`customFlip`)) return;
         try {
-            await delay(600);
+
             const data = await getCryptoCurrency(`${baseUrl}${coin.id}`);
             const prices = data.market_data.current_price;
             backFaceContent.innerHTML = `
@@ -162,6 +164,8 @@ function attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn) 
             `;
             backFaceContent.appendChild(showLessInfoBtn);
             requestAnimationFrame(() => {
+                //adding the keyword 'customFlip' to the name of the class so that it will behave differently (flip) later
+                //option to remove this word when not needing to flip
                 cardRoot.classList.add(`customFlip`);
             });
         } catch (err) {
@@ -169,14 +173,11 @@ function attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn) 
         }
 
         // Artificial delay for smoother animation
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
     });
 }
 
 // Displays a modal dialog, optionally with a list of selected coins
-async function displayDialog(toUpdateList) {
+async function displayDialog(isListGonnaBeUpdated) {
     const dialog = document.createElement(`dialog`);
     const form = document.createElement(`form`);
     dialog.appendChild(form);
@@ -189,9 +190,11 @@ async function displayDialog(toUpdateList) {
     const closeDialog = document.createElement(`button`);
     closeDialog.textContent = `X`;
     form.appendChild(closeDialog);
-    closeDialog.addEventListener(`click`, () => dialog.close());
+    closeDialog.addEventListener(`click`, () => {
+        dialog.close()
+    });
 
-    if (toUpdateList) {
+    if (isListGonnaBeUpdated) {
         updateHtml(list, dialog);
     } else {
         list.innerHTML = `<strong><p>No matching results</p></strong>`;
@@ -203,12 +206,12 @@ async function displayDialog(toUpdateList) {
 // Updates HTML of dialog with saved coins
 function updateHtml(list, dialog) {
     const checkedCoins = getSavedCurrencies();
-    callDialog(list, checkedCoins);
+    invokeDialog(list, checkedCoins);
     manageDeleteCoins(list, dialog);
 }
 
 // Renders each saved coin inside the dialog
-function callDialog(list, checkedCoins) {
+function invokeDialog(list, checkedCoins) {
     let html = `<strong><p>You can select up to five coins. Remove a coin</p></strong>`;
     checkedCoins.forEach((coin, index) => {
         html += `
@@ -290,7 +293,7 @@ async function loadChartScreen() {
     });
 
     setInterval(async () => {
-        let predictionResponse = await getCryptoCurrency(`https://min-api.cryptocompare.com/data/pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
+        let predictionResponse = await getCryptoCurrency(`${liveUrl}pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
         const now = Math.floor(Date.now() / 1000);
         for (const symbol of cryptoSymbol) {
             const upper = symbol.toUpperCase();
@@ -341,7 +344,7 @@ async function loadChartScreen() {
 
 // Fetches recent historical candlestick data for a given symbol
 async function fetchCandles(symbol) {
-    const res = await fetch(`https://min-api.cryptocompare.com/data/v2/histominute?fsym=${symbol}&tsym=USD&limit=5`);
+    const res = await fetch(`${liveUrl}v2/histominute?fsym=${symbol}&tsym=USD&limit=5`);
     const json = await res.json();
     return json.Data.Data.map(item => ({
         time: item.time,

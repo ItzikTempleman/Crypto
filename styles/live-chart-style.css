@@ -1,0 +1,28 @@
+.fullScreenContainer, .liveServeMain {
+    width: 80%;
+
+}
+
+.liveServeMain {
+    width: 100%;
+    height: 100vh;
+}
+
+
+.chartContainer {
+    margin: 20px;
+    border: solid 1px;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    align-content: center;
+    width: 95%;
+    padding: 10px;
+    background: linear-gradient(to right, #1e6570, #1e7d8c, #b4daff);
+}
+
+.candlestickChart {
+    width: 80%;
+    height: 80%;
+}
