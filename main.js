@@ -1,17 +1,5 @@
 "use strict";
 
-// Retrieves the list of saved coins from localStorage
-function getSavedCurrencies() {
-    const json = localStorage.getItem(`coins`);
-    let coinsList = [];
-    if (json) {
-        coinsList = JSON.parse(json);
-    }
-    return coinsList;
-}
-
-const liveUrl=`https://min-api.cryptocompare.com/data/`
-// Loads the home screen: adds parallax scroll effect, fetches coins, and renders a list with search
 async function loadHomeScreen() {
     const baseUrl = `https://api.coingecko.com/api/v3/coins/`;
     const cryptoExtListUsd = `markets?vs_currency=usd`;
@@ -284,84 +272,96 @@ function searchCoin(coins, baseUrl, container) {
     });
 }
 
+// Retrieves the list of saved coins from localStorage
+function getSavedCurrencies() {
+    const json = localStorage.getItem(`coins`);
+    let coinsList = [];
+    if (json) {
+        coinsList = JSON.parse(json);
+    }
+    return coinsList;
+}
+
+const liveUrl = `https://min-api.cryptocompare.com/data/`
+
 // Loads the chart screen and creates real-time updating candlestick charts for selected coins
-async function loadChartScreen() {
+async function loadChartScreen(format, data) {
+
+// Maps an array of symbols into a comma-separated string for future API usage
+    function mapCryptoValues(arr) {
+        let newStrings = ``;
+        arr.map((symbol, index) => {
+            if (index !== arr.length - 1) {
+                newStrings += symbol + `,`;
+            } else newStrings += symbol;
+        });
+        return newStrings;
+    }
+
+
     const cryptoItems = getSavedCurrencies();
-    let cryptoSymbol = [];
+    let cryptoSymbols = [];
     cryptoItems.forEach(item => {
-        cryptoSymbol.push(item.symbol);
+        cryptoSymbols.push(item.symbol);
     });
 
     setInterval(async () => {
         let predictionResponse = await getCryptoCurrency(`${liveUrl}pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
-        const now = Math.floor(Date.now() / 1000);
-        for (const symbol of cryptoSymbol) {
-            const upper = symbol.toUpperCase();
-            const price = predictionResponse[upper]?.USD;
-            if (price && chartMap[upper]) {
-                chartMap[upper].series.update({
-                    time: now,
-                    open: price,
-                    high: price,
-                    low: price,
-                    close: price
-                });
+        const now = new Date().toLocaleTimeString('en-IL', {
+            timeZone: 'Asia/Jerusalem',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        for (const item of cryptoSymbols) {
+            const price = `${predictionResponse[item]?.USD} $`;
+            if (price && chartMap[item]) {
+                chartMap[item].series.update({
+                        time: now,
+                        open: price,
+                        high: price,
+                        low: price,
+                        close: price
+                    }
+                );
             }
         }
-    }, 1000);
+    }, 30000);
 
     const chartMap = {};
     const container = document.getElementById("liveChartsContainer");
-
     for (const item of cryptoItems) {
-        const symbol = item.symbol.toUpperCase();
-        const wrapper = document.createElement("div");
-        wrapper.innerHTML = `<h4>${symbol}</h4><div id="chart-${symbol}" style="height:300px;"></div>`;
-        container.appendChild(wrapper);
+        const singleCardContainer = document.createElement("div");
+        singleCardContainer.innerHTML = `<h4>${item.name}</h4><div id="chart-${item.symbol}" style="height:250px;"></div>`;
+        container.appendChild(singleCardContainer);
 
-        const chart = LightweightCharts.createChart(`chart-${symbol}`, {
-            layout: {
-                background: {color: "#ffffff"},
-                textColor: "#000000",
-            },
-            grid: {
-                vertLines: {color: "#eee"},
-                horizontalLines: {color: "#eee"},
-            },
-            timeScale: {
-                timeVisible: true,
-                secondsVisible: false,
-            },
-        });
+        const chart = LightweightCharts.createChart(`chart-${item.symbol}`, {
+                timeScale: {
+                    timeVisible: true
+                }
+            }
+        );
 
         const series = chart.addCandlestickSeries();
-        chartMap[symbol] = {chart, series};
-
-        const history = await fetchCandles(symbol);
-        series.setData(history);
+        chartMap[item.symbol] = {chart, series};
+        series.setData(await fetchCandles(item.symbol), data);
     }
 }
 
-// Fetches recent historical candlestick data for a given symbol
+//symbol history
 async function fetchCandles(symbol) {
-    const res = await fetch(`${liveUrl}v2/histominute?fsym=${symbol}&tsym=USD&limit=5`);
-    const json = await res.json();
-    return json.Data.Data.map(item => ({
-        time: item.time,
-        open: item.open,
-        high: item.high,
-        low: item.low,
-        close: item.close
-    }));
-}
+    const response = await fetch(`${liveUrl}v2/histominute?fsym=${symbol}&tsym=USD&limit=5`);
+    const body = await response.json();
 
-// Maps an array of symbols into a comma-separated string for API usage
-function mapCryptoValues(arr) {
-    let newStrings = ``;
-    arr.map((symbol, index) => {
-        if (index !== arr.length - 1) {
-            newStrings += symbol + `,`;
-        } else newStrings += symbol;
-    });
-    return newStrings;
+    return body.Data.Data.map(item => (
+            {
+                time: item.time,
+                open: item.open,
+                high: item.high,
+                low: item.low,
+                close: item.close
+            }
+        )
+    );
 }
