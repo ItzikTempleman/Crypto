@@ -340,7 +340,7 @@ async function loadChartScreen(format, data) {
                 );
             }
         }
-    }, 30000);
+    }, 1000);
 
     const chartMap = {};
     const container = document.getElementById("liveChartsContainer");
