@@ -4,7 +4,7 @@ async function loadHomeScreen() {
     const baseUrl = `https://api.coingecko.com/api/v3/coins/`;
     const cryptoExtListUsd = `markets?vs_currency=usd`;
     window.addEventListener('scroll', () => {
-        let background = document.querySelector('.parallaxBackground');
+        let background = document.getElementById('.parallaxBackground');
         background.style.transform = `translateY(${window.scrollY * 0.8}px)`;
     });
     try {
@@ -287,6 +287,25 @@ const liveUrl = `https://min-api.cryptocompare.com/data/`
 // Loads the chart screen and creates real-time updating candlestick charts for selected coins
 async function loadChartScreen(format, data) {
 
+    const savedCryptoItems = getSavedCurrencies();
+    let cryptoSymbols = [];
+    savedCryptoItems.forEach(item => {
+        cryptoSymbols.push(item.symbol);
+    });
+
+    const emptyStateMessage = document.getElementById(`emptyStateMessage`)
+    const chartContainer= document.getElementById(`chartContainer`)
+    if (savedCryptoItems.length === 0){
+        emptyStateMessage.innerText=  emptyStateMessage.innerHTML=`No saved currencies to track. \n To view live chart please select the requested crypto currency`
+        chartContainer.style.visibility = "hidden";
+    }else{
+        emptyStateMessage.innerText=``
+        chartContainer.style.visibility = "visible";
+    }
+
+
+
+
 // Maps an array of symbols into a comma-separated string for future API usage
     function mapCryptoValues(arr) {
         let newStrings = ``;
@@ -298,12 +317,6 @@ async function loadChartScreen(format, data) {
         return newStrings;
     }
 
-
-    const cryptoItems = getSavedCurrencies();
-    let cryptoSymbols = [];
-    cryptoItems.forEach(item => {
-        cryptoSymbols.push(item.symbol);
-    });
 
     setInterval(async () => {
         let predictionResponse = await getCryptoCurrency(`${liveUrl}pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
@@ -331,7 +344,7 @@ async function loadChartScreen(format, data) {
 
     const chartMap = {};
     const container = document.getElementById("liveChartsContainer");
-    for (const item of cryptoItems) {
+    for (const item of savedCryptoItems) {
         const singleCardContainer = document.createElement("div");
         singleCardContainer.innerHTML = `<h4>${item.name}</h4><div id="chart-${item.symbol}" style="height:250px;"></div>`;
         container.appendChild(singleCardContainer);

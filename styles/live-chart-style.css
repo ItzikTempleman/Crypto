@@ -7,7 +7,19 @@
     width: 100%;
     height: 100vh;
 }
+.emptyStateMessageDiv {
+    width: 70%;
+    margin: 0 auto;
+    padding-top: 100px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    text-align: center;
+}
 
+.emptyStateMessage {
+    font-size: 26px;
+}
 
 .chartContainer {
     margin: 20px;
