@@ -1,6 +1,6 @@
 .aboutContentContainer {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
-    background: linear-gradient(to right, #1e6570, #1e7d8c, #b4daff);
+    background-color: lightsteelblue;
     margin: 20px auto;
     display: flex;
     width: 780px;

@@ -120,7 +120,7 @@ function buildFrontContent(cardFrontFace, coin, showMoreBtn) {
 function attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn) {
     const showLessInfoBtn = document.createElement(`button`);
     showLessInfoBtn.className = `showLessInfoBtn`;
-    showLessInfoBtn.textContent = `Show less info`;
+    showLessInfoBtn.textContent = `Less`;
     showLessInfoBtn.addEventListener(`click`, () => {
         //remove customFlip word from class name when to flip back
         cardRoot.classList.remove(`customFlip`);

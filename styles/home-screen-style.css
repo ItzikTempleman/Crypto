@@ -149,7 +149,7 @@ main, footer {
     border: none;
     color: white;
     font-size: 14px;
-    background-color: #15939c;
+    background-color: lightsteelblue;
     border-radius: 8px;
     padding: 10px 0;
     margin-top: auto;
@@ -214,14 +214,14 @@ dialog p{
     width: 40px;
     height: 20px;
     border-radius: 150px;
-    background: #dfdfdf;
+    background: #ededed;
     transition: background 0.2s;
     cursor: pointer;
     z-index: 5;
 }
 
 .toggleCheckbox:checked ~ .toggleVisualTrack{
-    background: #00e3ff;
+    background: lightsteelblue;
 }
 
 
@@ -232,7 +232,7 @@ dialog p{
     left: 0;
     height: 20px;
     width: 20px;
-    background: #15939c;
+    background: #619eed;
     border-radius: 150px;
     transition: transform 0.2s;
 }
