@@ -1,8 +1,29 @@
 .homeScreenContainer {
+    position: absolute;
+    height: 100vh;
+    overflow-y: auto;
+    left: 0;
+    right: 0;
+}
+
+
+.parallaxBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background-image: url('../images/crypt-main.jpg');
+    background-repeat: repeat-y;
+    background-size: contain;
+    background-position: center top;
+    z-index: -1;
+    pointer-events: none;
+}
+
+main, footer {
     position: relative;
     z-index: 1;
-    background: transparent;
-    min-height: 100vh;
 }
 
 .homeScreenTitle {
@@ -20,6 +41,12 @@
     padding: 5px;
 }
 
+.homeScreenContainer main {
+    overflow-y: auto;
+    flex-grow: 1;
+    position: relative;
+}
+
 .homeScreenTitle h1,
 .homeScreenTitle p {
     margin: 0;
@@ -28,18 +55,6 @@
 .homeScreenTitle p {
     font-size: 18px;
 }
-
-.parallaxBackground {
-    position: absolute;
-    width: 100%;
-    height:516vh;
-    background-image: url('../images/crypt-main.jpg');
-    background-repeat: repeat-y;
-    background-size: contain;
-    background-position: center top;
-    z-index: -1;
-}
-
 
 .cardFrontFace p{
     color: black;
@@ -51,6 +66,8 @@
 }
 
 .cryptoListContainerDiv {
+    position: relative;
+    z-index: 1;
     display: grid;
     margin: 10px auto;
     width: 100%;
@@ -73,10 +90,6 @@
     .cryptoListContainerDiv {
         grid-template-columns: repeat(4, 200px);
     }
-}
-
-.className{
-    color: black;
 }
 
 /*card elements*/

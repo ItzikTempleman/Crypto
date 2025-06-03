@@ -3,10 +3,7 @@
 async function loadHomeScreen() {
     const baseUrl = `https://api.coingecko.com/api/v3/coins/`;
     const cryptoExtListUsd = `markets?vs_currency=usd`;
-    window.addEventListener('scroll', () => {
-        let background = document.getElementById('.parallaxBackground');
-        background.style.transform = `translateY(${window.scrollY * 0.8}px)`;
-    });
+
     try {
         const cryptoList = await getCryptoCurrency(`${baseUrl}${cryptoExtListUsd}`);
         const container = document.getElementById('cryptoListContainerDiv');
@@ -37,22 +34,18 @@ function displayList(cryptoList, baseUrl, container) {
         const cardBackFace = document.createElement(`div`);
         const backFaceContent = document.createElement(`div`);
         const showMoreBtn = document.createElement(`button`);
-
         showMoreBtn.className = `showMoreInfoBtn`;
         showMoreBtn.textContent = `Show more info`;
-
         cardRoot.className = `cardRoot`;
         cardFlipper.className = `cardFlipper`;
         cardFrontFace.className = `cardFrontFace`;
         cardBackFace.className = `cardBackFace`;
         backFaceContent.className = `backFaceContent`;
-
         cardBackFace.appendChild(backFaceContent);
         cardFlipper.appendChild(cardFrontFace);
         cardFlipper.appendChild(cardBackFace);
         cardRoot.appendChild(cardFlipper);
         container.appendChild(cardRoot);
-
         buildFrontContent(cardFrontFace, coin, showMoreBtn);
         attachFlipLogic(backFaceContent, cardRoot, coin, baseUrl, showMoreBtn);
     });
@@ -66,7 +59,6 @@ function buildFrontContent(cardFrontFace, coin, showMoreBtn) {
     const toggleWrapper = document.createElement(`label`);
     const toggleCheckbox = document.createElement(`input`);
     const toggleVisualTrack = document.createElement(`div`);
-
     toggleWrapper.className = `toggleWrapper`;
     toggleCheckbox.className = `toggleCheckbox`;
     toggleCheckbox.type = `checkbox`;
@@ -82,7 +74,6 @@ function buildFrontContent(cardFrontFace, coin, showMoreBtn) {
         }
     }
     toggleCheckbox.checked = saved;
-
     // Populate front content
     cryptoListItemIcon.src = coin.image;
     cryptoListItemSymbol.innerHTML = coin.symbol.toUpperCase();
@@ -94,7 +85,6 @@ function buildFrontContent(cardFrontFace, coin, showMoreBtn) {
             if (toggleCheckbox.checked) {
                 let updatedCoinsList = getSavedCurrencies();
                 let alreadyExists = updatedCoinsList.some(item => item.id === coin.id);
-
                 if (!alreadyExists) {
                     if (updatedCoinsList.length < 5) {
                         updatedCoinsList.push(coin);
@@ -116,7 +106,6 @@ function buildFrontContent(cardFrontFace, coin, showMoreBtn) {
             }
         }
     });
-
     // Append elements
     toggleWrapper.appendChild(toggleCheckbox);
     toggleWrapper.appendChild(toggleVisualTrack);
@@ -170,11 +159,9 @@ async function displayDialog(isListGonnaBeUpdated) {
     const form = document.createElement(`form`);
     dialog.appendChild(form);
     document.body.appendChild(dialog);
-
     const list = document.createElement(`div`);
     list.className = `list`;
     form.appendChild(list);
-
     const closeDialog = document.createElement(`button`);
     closeDialog.textContent = `X`;
     form.appendChild(closeDialog);
@@ -258,7 +245,6 @@ function searchCoin(coins, baseUrl, container) {
                     matchFound = true;
                 }
             }
-
             container.innerHTML = '';
             if (matchFound) {
                 displayList(foundCards, baseUrl, container);
@@ -281,18 +267,15 @@ function getSavedCurrencies() {
     }
     return coinsList;
 }
-
 const liveUrl = `https://min-api.cryptocompare.com/data/`
 
 // Loads the chart screen and creates real-time updating candlestick charts for selected coins
 async function loadChartScreen(format, data) {
-
     const savedCryptoItems = getSavedCurrencies();
     let cryptoSymbols = [];
     savedCryptoItems.forEach(item => {
         cryptoSymbols.push(item.symbol);
     });
-
     const emptyStateMessage = document.getElementById(`emptyStateMessage`)
     const chartContainer= document.getElementById(`chartContainer`)
     if (savedCryptoItems.length === 0){
@@ -302,9 +285,6 @@ async function loadChartScreen(format, data) {
         emptyStateMessage.innerText=``
         chartContainer.style.visibility = "visible";
     }
-
-
-
 
 // Maps an array of symbols into a comma-separated string for future API usage
     function mapCryptoValues(arr) {
@@ -317,21 +297,13 @@ async function loadChartScreen(format, data) {
         return newStrings;
     }
 
-
     setInterval(async () => {
-        let predictionResponse = await getCryptoCurrency(`${liveUrl}pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
-        const now = new Date().toLocaleTimeString('en-IL', {
-            timeZone: 'Asia/Jerusalem',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-
         for (const item of cryptoSymbols) {
-            const price = `${predictionResponse[item]?.USD} $`;
+            let predictionResponse = await getCryptoCurrency(`${liveUrl}pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
+            const price = predictionResponse[item]?.USD;
             if (price && chartMap[item]) {
                 chartMap[item].series.update({
-                        time: now,
+                        time: Math.floor(Date.now() / 1000),
                         open: price,
                         high: price,
                         low: price,
@@ -348,14 +320,12 @@ async function loadChartScreen(format, data) {
         const singleCardContainer = document.createElement("div");
         singleCardContainer.innerHTML = `<h4>${item.name}</h4><div id="chart-${item.symbol}" style="height:250px;"></div>`;
         container.appendChild(singleCardContainer);
-
         const chart = LightweightCharts.createChart(`chart-${item.symbol}`, {
                 timeScale: {
                     timeVisible: true
                 }
             }
         );
-
         const series = chart.addCandlestickSeries();
         chartMap[item.symbol] = {chart, series};
         series.setData(await fetchCandles(item.symbol), data);

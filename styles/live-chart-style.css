@@ -1,16 +1,16 @@
 .fullScreenContainer, .liveServeMain {
-    width: 80%;
+    width: 100%;
 
 }
 
 .liveServeMain {
-    width: 100%;
     height: 100vh;
+    padding-top: 0;
 }
 .emptyStateMessageDiv {
     width: 70%;
     margin: 0 auto;
-    padding-top: 100px;
+    padding-top: 10px;
     justify-content: center;
     align-items: center;
     display: flex;
@@ -22,16 +22,16 @@
 }
 
 .chartContainer {
-    margin: 20px;
-    border: solid 1px;
-    border-radius: 10px;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    align-content: center;
     width: 95%;
-    padding: 10px;
-    background: linear-gradient(to right, #1e6570, #1e7d8c, #b4daff);
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid;
+    border-radius: 10px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    box-sizing: border-box;
 }
 
 .candlestickChart {
