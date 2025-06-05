@@ -241,8 +241,8 @@ function searchCoin(coins, baseUrl, container) {
             let foundCards = [];
 
             for (const coin of coins) {
-                const name=coin.name.toLowerCase();
-                const symbol=coin.symbol.toLowerCase();
+                const name = coin.name.toLowerCase();
+                const symbol = coin.symbol.toLowerCase();
 
                 if (name.includes(typedValue) || symbol.includes(typedValue)) {
                     foundCards.push(coin);
@@ -271,6 +271,7 @@ function getSavedCurrencies() {
     }
     return coinsList;
 }
+
 const liveUrl = `https://min-api.cryptocompare.com/data/`
 
 // Loads the chart screen and creates real-time updating candlestick charts for selected coins
@@ -281,12 +282,12 @@ async function loadChartScreen(format, data) {
         cryptoSymbols.push(item.symbol);
     });
     const emptyStateMessage = document.getElementById(`emptyStateMessage`)
-    const chartContainer= document.getElementById(`chartContainer`)
-    if (savedCryptoItems.length === 0){
-        emptyStateMessage.innerText=  emptyStateMessage.innerHTML=`No saved currencies to track. \n To view live chart please select the requested crypto currency`
+    const chartContainer = document.getElementById(`chartContainer`)
+    if (savedCryptoItems.length === 0) {
+        emptyStateMessage.innerText = emptyStateMessage.innerHTML = `No saved currencies to track. \n To view live chart please select the requested crypto currency`
         chartContainer.style.visibility = "hidden";
-    }else{
-        emptyStateMessage.innerText=``
+    } else {
+        emptyStateMessage.innerText = ``
         chartContainer.style.visibility = "visible";
     }
 
@@ -322,15 +323,41 @@ async function loadChartScreen(format, data) {
     const container = document.getElementById("liveChartsContainer");
     for (const item of savedCryptoItems) {
         const singleCardContainer = document.createElement("div");
-        singleCardContainer.innerHTML = `<h4>${item.name}</h4><div id="chart-${item.symbol}" style="height:250px;"></div>`;
+        singleCardContainer.innerHTML = `
+            <div class="chartWrapper">
+    <h4>${item.name}</h4>
+    <div id="chart-${item.symbol}" class="candlestickChart"></div>
+             </div>`;
         container.appendChild(singleCardContainer);
         const chart = LightweightCharts.createChart(`chart-${item.symbol}`, {
-                timeScale: {
-                    timeVisible: true
+            timeScale: {
+                timeVisible: true,
+                secondsVisible: true,
+                borderVisible: false
+            },
+            rightPriceScale: {
+                borderVisible: false,
+            }
+        });
+        chart.applyOptions({
+            timeScale: {
+                timeVisible: true,
+                tickMarkFormatter: (timestamp) => {
+                    const date = new Date(timestamp * 1000);
+                    return date.toLocaleTimeString('en-GB', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
                 }
             }
-        );
-        const series = chart.addCandlestickSeries();
+        });
+        const series = chart.addCandlestickSeries({
+            priceFormat: {
+                type: 'custom',
+                formatter: price => `${formatPrices(price)} $`
+            }
+        });
         chartMap[item.symbol] = {chart, series};
         series.setData(await fetchCandles(item.symbol), data);
     }
