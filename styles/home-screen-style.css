@@ -1,9 +1,10 @@
 .homeScreenContainer {
-    position: absolute;
-    height: 100vh;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
     overflow-y: auto;
-    left: 0;
-    right: 0;
 }
 
 
