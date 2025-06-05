@@ -163,6 +163,7 @@ async function displayDialog(isListGonnaBeUpdated) {
     list.className = `list`;
     form.appendChild(list);
     const closeDialog = document.createElement(`button`);
+    closeDialog.type = "button";
     closeDialog.textContent = `X`;
     form.appendChild(closeDialog);
     closeDialog.addEventListener(`click`, () => {
@@ -235,12 +236,15 @@ function searchCoin(coins, baseUrl, container) {
         const target = event.target;
         const typedValue = target.value.toLowerCase().trim();
 
-        if (typedValue.length > 2) {
+        if (typedValue.length > 1) {
             let matchFound = false;
             let foundCards = [];
 
             for (const coin of coins) {
-                if (coin.name.toLowerCase().includes(typedValue) || coin.symbol.toLowerCase().includes(typedValue)) {
+                const name=coin.name.toLowerCase();
+                const symbol=coin.symbol.toLowerCase();
+
+                if (name.includes(typedValue) || symbol.includes(typedValue)) {
                     foundCards.push(coin);
                     matchFound = true;
                 }

@@ -34,7 +34,7 @@ img {
 }
 
 .navBar {
-    background-color: lightsteelblue;
+    background-color: #e0a800;
     display: flex;
     justify-content: space-between;
     align-items: center;
