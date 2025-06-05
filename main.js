@@ -302,10 +302,13 @@ async function loadChartScreen(format, data) {
         return newStrings;
     }
 
+    // Updates chart data every second with the latest prices
     setInterval(async () => {
         for (const item of cryptoSymbols) {
+            // Get current prices for all selected crypto symbols
             let predictionResponse = await getCryptoCurrency(`${liveUrl}pricemulti?tsyms=usd&fsyms=${mapCryptoValues(cryptoSymbol)}`);
             const price = predictionResponse[item]?.USD;
+            // Update the chart if valid data and chart exists
             if (price && chartMap[item]) {
                 chartMap[item].series.update({
                         time: Math.floor(Date.now() / 1000),
@@ -319,31 +322,38 @@ async function loadChartScreen(format, data) {
         }
     }, 1000);
 
+    //reference the chart for updating later
     const chartMap = {};
     const container = document.getElementById("liveChartsContainer");
+
+    //Create a chart for each saved cryptocurrency
     for (const item of savedCryptoItems) {
         const singleCardContainer = document.createElement("div");
+        // creating an HTML container with title and chart div
         singleCardContainer.innerHTML = `
             <div class="chartWrapper">
     <h4>${item.name}</h4>
     <div id="chart-${item.symbol}" class="candlestickChart"></div>
              </div>`;
         container.appendChild(singleCardContainer);
+
+        // create the actual individual Chart
         const chart = LightweightCharts.createChart(`chart-${item.symbol}`, {
             timeScale: {
                 timeVisible: true,
                 secondsVisible: true,
-                borderVisible: false
+                borderVisible: false // hiding the bottom ugly default border
             },
             rightPriceScale: {
-                borderVisible: false,
+                borderVisible: false, // hiding the right side ugly default border
             }
         });
+        //formatting the time
         chart.applyOptions({
             timeScale: {
                 timeVisible: true,
                 tickMarkFormatter: (timestamp) => {
-                    const date = new Date(timestamp * 1000);
+                    const date = new Date(timestamp * 1000); // converting seconds to mili seconds
                     return date.toLocaleTimeString('en-GB', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -352,22 +362,26 @@ async function loadChartScreen(format, data) {
                 }
             }
         });
+
+        // creating a candlestick with  prices
         const series = chart.addCandlestickSeries({
             priceFormat: {
                 type: 'custom',
-                formatter: price => `${formatPrices(price)} $`
+                formatter: price => `${formatPrices(price)} $` // adding $ dollar symbol to the prices
             }
         });
+        //storing the chart for future reference
         chartMap[item.symbol] = {chart, series};
+        //setting initial chart data from API - built in library function
         series.setData(await fetchCandles(item.symbol), data);
     }
 }
 
-//symbol history
+//fetching 5 most recent candlestick data points for the given symbol
 async function fetchCandles(symbol) {
     const response = await fetch(`${liveUrl}v2/histominute?fsym=${symbol}&tsym=USD&limit=5`);
     const body = await response.json();
-
+    //returning the array of the candlesticks formatted
     return body.Data.Data.map(item => (
             {
                 time: item.time,
